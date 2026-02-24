@@ -319,9 +319,11 @@ Percentage: Vd% = (Vd / V_source) × 100
 |400|400,000    |202.7     |
 |500|500,000    |253.4     |
 
-### Conduit Fill (CEC Rule 12-1014)
+### Conduit Fill (CEC Rule 12-910, Table 8)
 
-**Maximum fill percentages:**
+**Source:** CEC 2021 Rule 12-910, Table 8. Cross-verified against IAEI Magazine (2021 CEC updates article), Electrical Industry News Week (CEC Tables guide), and Nexans Canada Electrician’s Handbook.
+
+**Maximum fill percentages (CEC Table 8):**
 
 |Number of Conductors|Max Fill %|
 |--------------------|----------|
@@ -329,9 +331,19 @@ Percentage: Vd% = (Vd / V_source) × 100
 |2                   |31%       |
 |3 or more           |40%       |
 
-**Conduit internal areas (Trade Size → mm²):**
+**How conduit fill calculation works in CEC 2021:**
 
-**⚠️ VERIFICATION REQUIRED:** The values below are approximations. CEC 2021 restructured Tables 6 and 9 — Table 6 now provides mm² area of single conductors/cables, and Table 9 provides conduit cross-sectional areas at various fill percentages. The developer MUST verify these against the actual CEC 2021 Table 9 values before publishing. CEC metric values may differ slightly from NEC imperial-to-metric conversions.
+1. Look up wire cross-sectional area in **Table 6** (6A through 6K, by insulation type)
+1. Sum total wire area: Σ(wire_area_mm² × quantity)
+1. Look up conduit cross-sectional area in **Table 9** (9A through 9P, by conduit type)
+1. Determine max fill % from **Table 8** based on number of conductors
+1. Compare: total_wire_area ≤ conduit_area × fill_%
+
+**Key CEC 2021 Table restructuring:** Tables 6A-6K now provide mm² area of single conductors/cables (previously provided max conductor counts). Tables 9A-9P provide conduit internal cross-sectional areas at various fill percentages (100%, 53%, 31%, 40%). Tables 10A-10D provide additional conductor dimensions for specialized cable types.
+
+**Conduit internal areas (approximate — Trade Size → mm²):**
+
+**⚠️ VERIFICATION REQUIRED:** The values below are approximations. The developer MUST verify against actual CEC 2021 Table 9 values before publishing. CEC metric values may differ from NEC imperial-to-metric conversions. Consider purchasing the Nexans Canada Electrician’s Handbook as a low-cost reference.
 
 |Trade Size|EMT (mm²)|Rigid PVC (mm²)|Rigid Metal (mm²)|
 |----------|---------|---------------|-----------------|
@@ -348,7 +360,7 @@ Percentage: Vd% = (Vd / V_source) × 100
 
 **Wire outer diameter areas (with insulation):**
 
-**⚠️ VERIFICATION REQUIRED:** CEC 2021 uses Tables 6A through 6K for wire/cable dimensions. Table 6A covers RW90 XLPE, Table 6K covers T90 Nylon. The values below are approximations — verify against actual CEC 2021 Table 6 values before publishing.
+**⚠️ VERIFICATION REQUIRED:** CEC 2021 uses Tables 6A through 6K for wire/cable dimensions (referenced by Rule 12-910). Table 6A covers R90XLPE/RW75XLPE/RW90XLPE unjacketed 600V. Table 6J covers TW/TW75. Table 6K covers TWN75/T90 Nylon. The values below are approximations — verify against actual CEC 2021 Table 6 values before publishing.
 
 |AWG|T90 Nylon (mm²)|RW90 XLPE (mm²)|
 |---|---------------|---------------|
@@ -366,26 +378,55 @@ Percentage: Vd% = (Vd / V_source) × 100
 |3/0|131.9          |158.6          |
 |4/0|154.1          |180.7          |
 
-### Box Fill (CEC Rule 12-3036)
+### Box Fill (CEC Rule 12-3034, Tables 22 & 23)
 
-**Volume allowance per conductor:**
+**Volume allowance per conductor (CEC Table 22):**
 
-|AWG|Volume per Conductor (cm³)|
-|---|--------------------------|
-|14 |32.8                      |
-|12 |36.1                      |
-|10 |40.2                      |
-|8  |49.2                      |
-|6  |81.9                      |
+**Source:** CEC 2021 Table 22, cross-verified against Offset Notes CEC Box Fill Calculator (built by 25-year master electrician), Electrician Talk forum calculations, and DIY Home Improvement Forum CEC discussions.
 
-**Counting rules (CEC 12-3036):**
+|AWG|Volume per Conductor (mL / cm³)|
+|---|-------------------------------|
+|14 |24.6                           |
+|12 |28.7                           |
+|10 |36.9                           |
+|8  |45.1                           |
+|6  |73.7                           |
 
-- Each wire entering the box = 1 conductor volume
-- Each wire passing through (not spliced) = 1 conductor volume
-- Internal cable clamps (all together) = 1 conductor volume (based on largest wire)
-- Each support fitting (stud, fixture) = 1 conductor volume (based on largest wire)
-- Each device (switch, receptacle) = 2 conductor volumes (based on largest wire connected)
-- Equipment grounding conductors (all together) = 1 conductor volume (based on largest ground)
+**⚠️ NOTE:** These are CEC Table 22 values (metric). They differ significantly from NEC Table 314.16(B) values (e.g., NEC #14 = 32.8 cm³ vs CEC #14 = 24.6 mL). Do NOT use NEC values.
+
+**Conductor counting rules (CEC 12-3034):**
+
+Per Rule 12-3034(1) — Conductors to count:
+
+- Each insulated conductor entering the box = 1 conductor volume
+- Each pass-through conductor (not spliced, not terminated) = **1 conductor** (not 2)
+- Pigtails originating inside the box that do not leave = **do NOT count**
+- Fixture wires (No. 18 and No. 16 AWG supplying a luminaire on the box) = **do NOT count**
+- Bare bonding conductors = **do NOT count** (rule says “insulated conductors”)
+
+Per Rule 12-3034(2) — Additional allowances to ADD (reduce available conductor count):
+
+- (a) Fixture stud or hickey: **1 conductor** volume for each stud/hickey (based on largest wire)
+- (b) Wire connectors with insulating caps: **1 conductor** volume for every PAIR of connectors (no deduction for 1 connector; 2-3 connectors = deduct 1; 4-5 connectors = deduct 2; etc.) — based on largest wire terminated under the connector
+- (c) Flush-mounted device on single strap: **2 conductors** volume per device (based on largest wire connected to that device)
+
+Per Rule 12-3034(3) — Deep device rule:
+
+- Devices with >2.54 cm (1 inch) between mounting strap and back of device:
+- Reduce total usable space by: **82 cm³ × depth(cm) ÷ 2.54** (simplified: ~32 cm³ × depth in cm)
+- Applies to GFCIs, smart switches, dimmers, and other oversized devices
+
+Per Rule 12-3034(5) — Box volume:
+
+- Total usable space = internal volume of the box
+- Disregard space occupied by locknuts, bushings, box connectors, or clamps
+
+**Equipment grounding conductors (EGCs):**
+
+- All EGCs in a box = **1 conductor** volume total, based on the largest EGC present
+- Example: 4× #14 grounds + 2× #12 grounds = 1× 28.7 mL (not six separate entries)
+
+**⚠️ CEC vs NEC KEY DIFFERENCE:** CEC does NOT have a separate “cable clamp” allowance like NEC 314.16(B)(2). CEC Rule 12-3034(5) says to disregard space occupied by clamps.
 
 -----
 
@@ -487,35 +528,44 @@ Percentage: Vd% = (Vd / V_source) × 100
 - Maximum allowed fill percentage
 - Pass/Fail indicator
 - Remaining capacity (mm² available)
-- CEC rule reference: “Per CEC 2021 Rule 12-1014, Table 6/9”
+- CEC rule reference: “Per CEC 2021 Rule 12-910, Tables 6/8/9”
 
-**Note on CEC 2021 Table restructuring:** Tables 6A-6K provide wire/cable cross-sectional areas. Tables 9A-9P provide conduit internal areas at various fill percentages (100%, 53%, 31%, 40%). The old “Table 10” conduit fill lookup was replaced by the updated Table 9 structure.
+**Note on CEC 2021 Table restructuring:** Tables 6A-6K provide wire/cable cross-sectional areas (mm²). Tables 9A-9P provide conduit internal areas at various fill percentages (100%, 53%, 31%, 40%). Table 8 provides maximum fill percentages. Rule 12-910 is the general conduit fill rule; Rule 12-1014 applies specifically to rigid metal conduit.
 
 ### 5. Box Fill Calculator (PRO)
 
 **Inputs:**
 
 - Wire entries: for each wire size (14, 12, 10, 8, 6):
-  - Wires entering box: number
-  - Wires passing through: number
-- Cable clamps present: Yes/No (uses largest wire)
-- Number of devices (switches/receptacles): number (uses largest wire connected)
-- Number of support fittings: number (uses largest wire)
-- Equipment grounding conductors present: Yes/No (uses largest ground)
+  - Insulated wires entering box: number
+  - Pass-through wires (not spliced/terminated): number
+- Number of wire connector pairs (marrettes): number (uses largest wire terminated)
+- Number of devices (switches/receptacles): number (uses largest wire connected to each)
+- Number of fixture studs/hickeys: number (uses largest wire)
+- Equipment grounding conductors: checkbox per size present (all count as 1 based on largest)
+- Deep device present: Yes/No (if Yes, input depth in cm)
 
-**Calculation Logic:**
+**Calculation Logic (CEC Rule 12-3034, Table 22):**
 
-1. Count conductor volumes per CEC 12-3036 counting rules
-1. Multiply counts by volume per conductor for each wire size
-1. Sum total required volume
-1. Display minimum box size needed
+1. Count insulated conductors entering box (1 volume each)
+1. Count pass-through conductors (1 volume each, NOT 2)
+1. Pigtails and bare bonds do NOT count
+1. Add 1 conductor volume per pair of wire connectors (based on largest wire)
+1. Add 1 conductor volume per fixture stud/hickey (based on largest wire)
+1. Add 2 conductor volumes per flush device (based on largest wire connected)
+1. Add 1 conductor volume for all EGCs combined (based on largest EGC)
+1. Multiply each count by CEC Table 22 volume for that wire size
+1. Sum total required volume (mL)
+1. If deep device: reduce box usable space by 82 cm³ × depth(cm) ÷ 2.54
+1. Compare against CEC Table 23 standard box sizes
 
 **Output:**
 
-- Itemized volume breakdown
-- Total required volume (cm³)
-- Common standard box sizes that meet requirement
-- CEC rule reference: “Per CEC 2021 Rule 12-3036”
+- Itemized volume breakdown (mL)
+- Total required volume (mL / cm³)
+- Common standard box sizes that meet requirement (from Table 23)
+- Pass/Fail indicator
+- CEC rule reference: “Per CEC 2021 Rule 12-3034, Table 22”
 
 -----
 
@@ -643,9 +693,10 @@ eas submit --platform ios
 
 ## IMPORTANT NOTES
 
-- **All CEC table data in this file is based on CEC 2021 (CSA C22.1:21, 25th Edition).** The Table 2 ampacity values have been cross-verified against electdesign.ca (Canadian electrical design reference), IAEI Magazine articles on Rule 4-006, and AES Engineering publications. The 90°C column reflects post-harmonization values (aligned with NEC Table 310.16).
+- **All CEC table data in this file is based on CEC 2021 (CSA C22.1:21, 25th Edition).** The Table 2 ampacity values have been cross-verified against electdesign.ca (Canadian electrical design reference), IAEI Magazine articles on Rule 4-006, AES Engineering publications, and Texcan cable sizing article. The 90°C column reflects post-harmonization values (aligned with NEC Table 310.16).
 - **Table 5A (ambient temp correction) and Table 5C (conductor bundling derating) have been verified.** Note: CEC Table 5D is for cable tray installations only, NOT for raceway derating.
-- **Conduit internal areas (Table 9) and wire outer diameters (Table 6) are approximations.** CEC 2021 restructured these tables significantly. The developer MUST verify against the actual CEC 2021 code book (Tables 6A-6K and 9A-9P) before publishing. Consider purchasing the Nexans Canada Electrician’s Handbook as a low-cost reference.
+- **Box fill data uses CEC Table 22 values (Rule 12-3034), NOT NEC Table 314.16(B).** CEC volumes are in mL/cm³ and differ significantly from NEC cubic inch values. Counting rules verified against Offset Notes CEC Box Fill Calculator and Electrician Talk forum discussions.
+- **Conduit fill uses CEC Rule 12-910, Tables 6/8/9.** Conduit internal areas (Table 9) and wire outer diameters (Table 6) are approximations. CEC 2021 restructured these tables significantly. The developer MUST verify against the actual CEC 2021 code book (Tables 6A-6K and 9A-9P) before publishing. Consider purchasing the Nexans Canada Electrician’s Handbook as a low-cost reference.
 - **Rule 4-006 (Termination Temperature) is critical for practical accuracy.** Most equipment ≤600V is rated for 75°C terminations. The app should default to 75°C column for wire sizing and clearly explain when the 90°C column applies (derating calculations only).
 - **The app must include a disclaimer:** “This app is a calculation aid only. Always verify calculations against the official Canadian Electrical Code. Not a substitute for professional engineering judgment.”
 - **Do NOT include copyrighted CEC table reproductions in the app.** The calculation results are derived from standard electrical engineering formulas. The app performs calculations — it does not reproduce the code book.
@@ -655,3 +706,5 @@ eas submit --platform ios
 1. #3/0 AWG copper at 75°C → Should show 200A
 1. 90°C conductor at 40°C ambient → correction factor should be 0.91
 1. 7 conductors in raceway → derating factor should be 0.70
+1. Box fill: 6× #12-2C + 3 marrette pairs → 12 × 28.7 + 3 × 28.7 = 430.5 mL (CEC Table 22)
+1. Conduit fill: 3× #10 RW90XLPE in ½” EMT → Check against Table 6A + Table 9G
