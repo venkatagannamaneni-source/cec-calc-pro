@@ -1,5 +1,28 @@
-// CEC 2021 Table 2 — Ampacity of conductors, not more than 3 in raceway/cable (30°C ambient)
-// Sources: CEC 2021 (CSA C22.1:21, 25th Edition), electdesign.ca, IAEI Magazine
+// CEC 2021 Tables 2 & 4 — Ampacity of conductors, ≤3 in raceway/cable (30°C ambient)
+// Table 2 = Copper conductors; Table 4 = Aluminum conductors
+// (CEC uses separate tables, unlike NEC 310.16 which combines both)
+//
+// SOURCES:
+//   - CSA C22.1:21, Canadian Electrical Code, Part 1, 25th Edition (2021)
+//   - IAEI Magazine: "Application of Rule 4-006" — confirmed #3 AWG Cu 90°C = 115A,
+//     #3/0 AWG Cu 90°C = 225A (post-harmonization with NEC)
+//   - Celtex Automation ampacity charts (celtex.ca)
+//   - Dakota Prep Red Seal Exam guides (dakotaprep.com)
+//
+// VERIFIED VALUES:
+//   ✓ #3 AWG copper at 90°C = 115A (raised from 105A after CEC/NEC harmonization)
+//   ✓ #3/0 AWG copper at 75°C = 200A
+//   ✓ #3/0 AWG copper at 90°C = 225A (raised from 210A after harmonization)
+//   ✓ 30°C base ambient temperature
+//
+// Table 5A: Ambient temperature correction factors (30°C base)
+//   ✓ 40°C ambient, 90°C insulation = 0.91 (IAEI Magazine)
+//   ✓ 50°C ambient, 75°C insulation = 0.75 (Dakota Prep)
+//   ✓ Factors verified against formula: sqrt((T_rated - T_ambient)/(T_rated - 30))
+//
+// Table 5C: Conductor bundling derating factors (for Tables 2 & 4)
+//   ✓ 4-6 conductors = 0.80 (Dakota Prep)
+//   ✓ 7-24 conductors = 0.70 (IAEI Magazine, Dakota Prep)
 
 export type WireSize =
   | '14' | '12' | '10' | '8' | '6' | '4' | '3' | '2' | '1'
@@ -16,7 +39,7 @@ export interface AmpacityEntry {
   temp90: number;
 }
 
-// CEC Table 2 — Copper conductors
+// CEC Table 2 — Copper conductors in raceway/cable, ≤3 conductors, 30°C ambient
 export const copperAmpacity: AmpacityEntry[] = [
   { wireSize: '14',   temp60: 15,  temp75: 20,  temp90: 25  },
   { wireSize: '12',   temp60: 20,  temp75: 25,  temp90: 30  },
@@ -41,7 +64,8 @@ export const copperAmpacity: AmpacityEntry[] = [
   { wireSize: '1000', temp60: 455, temp75: 545, temp90: 615 },
 ];
 
-// CEC Table 2 — Aluminum conductors
+// CEC Table 4 — Aluminum conductors in raceway/cable, ≤3 conductors, 30°C ambient
+// (CEC uses Table 4 for aluminum; Table 2 is copper only)
 export const aluminumAmpacity: AmpacityEntry[] = [
   { wireSize: '12',   temp60: 15,  temp75: 20,  temp90: 25  },
   { wireSize: '10',   temp60: 25,  temp75: 30,  temp90: 35  },

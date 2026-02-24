@@ -1,5 +1,9 @@
 /**
- * Conduit Fill Calculator Tests — CEC 2021 Rule 12-910, Tables 6/8/9
+ * Conduit Fill Calculator Tests — CEC 2021 Rule 12-910, Tables 8/9/10A
+ *
+ * Wire areas from CEC Table 10A (verified against IAEI, ebmag, ServiceWire OD data).
+ * Conduit areas from CEC Table 9 / ANSI standard dimensions.
+ * Fill percentages from CEC Table 8.
  */
 
 import { calculateConduitFill, ConduitFillInput, ConduitFillResult } from '../utils/conduit-fill';
@@ -40,22 +44,22 @@ describe('Conduit Fill — README Test Case', () => {
       wires: [{ wireSize: '10', insulationType: 'RW90 XLPE', quantity: 3 }],
     }));
 
-    // Wire area: #10 RW90 XLPE = 24.52 mm² each
-    // Total wire area: 3 × 24.52 = 73.56 mm²
-    expect(result.totalWireArea).toBeCloseTo(73.56, 1);
+    // Wire area: #10 RW90 XLPE = 15.69 mm² each (CEC Table 10A)
+    // Total wire area: 3 × 15.69 = 47.07 mm²
+    expect(result.totalWireArea).toBeCloseTo(47.07, 1);
 
-    // Conduit area: 1/2" EMT = 161 mm²
-    expect(result.conduitArea).toBe(161);
+    // Conduit area: 1/2" EMT = 196 mm² (ANSI C80.3 nominal)
+    expect(result.conduitArea).toBe(196);
 
-    // Fill %: 73.56 / 161 × 100 = 45.69%
-    expect(result.fillPercent).toBeCloseTo(45.69, 0);
+    // Fill %: 47.07 / 196 × 100 = 24.01%
+    expect(result.fillPercent).toBeCloseTo(24.01, 0);
 
     // 3 conductors → max fill = 40%
     expect(result.maxFillPercent).toBe(40);
     expect(result.totalConductors).toBe(3);
 
-    // 45.69% > 40% → FAIL
-    expect(result.status).toBe('fail');
+    // 24.01% < 40% → PASS (per CEC 2021, 3× #10 RW90XLPE fits in 1/2" EMT)
+    expect(result.status).toBe('pass');
   });
 });
 
@@ -71,8 +75,8 @@ describe('Conduit Fill — Basic Calculations', () => {
     }));
 
     // Wire area: #14 T90 Nylon = 8.97 mm²
-    // Conduit area: 2" EMT = 1534 mm²
-    // Fill: 8.97 / 1534 × 100 = 0.58%
+    // Conduit area: 2" EMT = 2165 mm²
+    // Fill: 8.97 / 2165 × 100 = 0.41%
     // 1 conductor → max 53%
     expect(result.status).toBe('pass');
     expect(result.fillPercent).toBeLessThan(1);
@@ -88,12 +92,12 @@ describe('Conduit Fill — Basic Calculations', () => {
       ],
     }));
 
-    // Wire area: 3×17.34 + 2×24.52 = 52.02 + 49.04 = 101.06 mm²
-    expect(result.totalWireArea).toBeCloseTo(101.06, 1);
+    // Wire area: 3×11.58 + 2×15.69 = 34.74 + 31.38 = 66.12 mm²
+    expect(result.totalWireArea).toBeCloseTo(66.12, 1);
     expect(result.totalConductors).toBe(5);
 
-    // Conduit area: 1" EMT = 490 mm²
-    // Fill: 101.06 / 490 × 100 = 20.62%
+    // Conduit area: 1" EMT = 557 mm²
+    // Fill: 66.12 / 557 × 100 = 11.87%
     // 5 conductors → max 40%
     expect(result.maxFillPercent).toBe(40);
     expect(result.status).toBe('pass');
@@ -106,10 +110,10 @@ describe('Conduit Fill — Basic Calculations', () => {
       wires: [{ wireSize: '12', insulationType: 'RW90 XLPE', quantity: 4 }],
     }));
 
-    // Wire area: 4 × 17.34 = 69.36 mm²
-    // Conduit: 490 mm², max fill 40% → allowed area = 196 mm²
-    // Remaining: 196 - 69.36 = 126.64 mm²
-    expect(result.remainingCapacity).toBeCloseTo(126.64, 0);
+    // Wire area: 4 × 11.58 = 46.32 mm²
+    // Conduit: 557 mm², max fill 40% → allowed area = 222.8 mm²
+    // Remaining: 222.8 - 46.32 = 176.48 mm²
+    expect(result.remainingCapacity).toBeCloseTo(176.48, 0);
   });
 });
 
@@ -117,9 +121,9 @@ describe('Conduit Fill — Basic Calculations', () => {
 // Different Conduit Types
 // ============================================================
 describe('Conduit Fill — Conduit Types', () => {
-  test('Rigid PVC has smaller area than EMT for same trade size', () => {
-    const emtResult = expectResult(calculateConduitFill({
-      conduitType: 'EMT',
+  test('Rigid PVC has smaller area than Rigid Metal for same trade size', () => {
+    const rigidResult = expectResult(calculateConduitFill({
+      conduitType: 'Rigid Metal',
       tradeSize: '1/2"',
       wires: [{ wireSize: '14', insulationType: 'T90 Nylon', quantity: 3 }],
     }));
@@ -131,8 +135,26 @@ describe('Conduit Fill — Conduit Types', () => {
     }));
 
     // PVC has smaller internal area → higher fill %
-    expect(pvcResult.fillPercent).toBeGreaterThan(emtResult.fillPercent);
-    expect(pvcResult.conduitArea).toBeLessThan(emtResult.conduitArea);
+    expect(pvcResult.fillPercent).toBeGreaterThan(rigidResult.fillPercent);
+    expect(pvcResult.conduitArea).toBeLessThan(rigidResult.conduitArea);
+  });
+
+  test('Rigid Metal has larger area than EMT for same trade size', () => {
+    const emtResult = expectResult(calculateConduitFill({
+      conduitType: 'EMT',
+      tradeSize: '1/2"',
+      wires: [{ wireSize: '14', insulationType: 'T90 Nylon', quantity: 3 }],
+    }));
+
+    const rigidResult = expectResult(calculateConduitFill({
+      conduitType: 'Rigid Metal',
+      tradeSize: '1/2"',
+      wires: [{ wireSize: '14', insulationType: 'T90 Nylon', quantity: 3 }],
+    }));
+
+    // Rigid Metal has larger internal area than EMT
+    expect(rigidResult.conduitArea).toBeGreaterThan(emtResult.conduitArea);
+    expect(rigidResult.fillPercent).toBeLessThan(emtResult.fillPercent);
   });
 });
 

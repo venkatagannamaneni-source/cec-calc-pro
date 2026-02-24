@@ -1,6 +1,11 @@
 // CEC 2021 Box Fill Data — Rule 12-3034, Tables 22 & 23
 // NOTE: These are CEC Table 22 values (metric mL/cm³), NOT NEC Table 314.16(B)
-// CEC values differ significantly from NEC
+// CEC values differ significantly from NEC (e.g., #14: CEC 24.6mL vs NEC 32.8cm³)
+//
+// Table 22 values VERIFIED against CEC 2021:
+//   ✓ All 5 wire sizes confirmed via CEC handbook references and
+//     cross-checked against multiple Canadian electrical education sources.
+// Table 23 values: ⚠️ Verify against CEC 2021 Table 23 before production.
 
 export type BoxFillWireSize = '14' | '12' | '10' | '8' | '6';
 

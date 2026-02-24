@@ -1,4 +1,14 @@
-// Wire Sizing Calculator — CEC 2021 Table 2, Table 5A, Table 5C, Rule 4-006
+// Wire Sizing Calculator — CEC 2021 Table 2/4, Table 5A, Table 5C, Rule 4-006
+//
+// Rule 4-006 Termination Temperature:
+//   Rule 4-006(1): Equipment >100A or >No.1 AWG → use 75°C column
+//   Rule 4-006(2): Equipment ≤100A or ≤No.1 AWG → use 60°C column,
+//     UNLESS equipment is specifically marked for 75°C termination.
+//   Note: Most modern equipment (post-harmonization) is rated/tested at 75°C.
+//   This calculator uses 75°C as the default termination check, which is
+//   appropriate for most modern installations. Users with older equipment
+//   rated at 60°C should verify manually.
+//   Source: IAEI Magazine "Application of Rule 4-006 of the CEC"
 import {
   ConductorMaterial,
   InsulationTemp,

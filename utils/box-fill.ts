@@ -1,4 +1,18 @@
 // Box Fill Calculator — CEC 2021 Rule 12-3034, Tables 22 & 23
+//
+// CEC counting rules (differ from NEC):
+//   - Insulated conductors: 1 volume each (Table 22)
+//   - Pass-through conductors: 1 volume each (not 2)
+//   - Wire connector pairs (marrettes): 1 volume each (based on largest wire)
+//   - Devices: 2 volumes each (based on largest wire connected)
+//   - Fixture studs/hickeys: 1 volume each
+//   - EGCs: ALL equipment grounding conductors count as 1 conductor total,
+//     based on the volume of the largest EGC present (Rule 12-3034)
+//   - CEC does NOT have a separate cable clamp allowance (unlike NEC)
+//
+// Table 22 values VERIFIED against CEC 2021:
+//   ✓ #14=24.6mL, #12=28.7mL, #10=36.9mL, #8=45.1mL, #6=73.7mL
+//   (Confirmed via multiple sources including CEC handbook references)
 import { BoxFillWireSize, volumePerConductor, standardBoxes, StandardBox } from '../data/box-fill-data';
 
 export interface BoxFillWireEntry {
