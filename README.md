@@ -228,7 +228,7 @@ Aluminum conductors (per Rule 14-104(2)(d-e)):
 |12       |15       |20              |25              |
 |10       |25       |30              |35              |
 |8        |30       |40              |45              |
-|6        |40       |50              |60              |
+|6        |40       |50              |55              |
 |4        |55       |65              |75              |
 |3        |65       |75              |85              |
 |2        |75       |90              |100             |
@@ -238,7 +238,7 @@ Aluminum conductors (per Rule 14-104(2)(d-e)):
 |3/0      |130      |155             |175             |
 |4/0      |150      |180             |205             |
 |250      |170      |205             |230             |
-|300      |190      |230             |255             |
+|300      |195      |230             |260             |
 |350      |210      |250             |280             |
 |400      |225      |270             |305             |
 |500      |260      |310             |350             |
@@ -730,13 +730,19 @@ All data verified against CSA C22.1:21, Canadian Electrical Code, Part 1 (25th E
 5. **Electrical Industry News Week** — “Guide to the CEC, 25th Edition – Tables Section” (electricalindustry.ca)
    - CEC table numbering and structure confirmation
 6. **Celtex Automation** — Copper & Aluminum Wire Ampacity Charts (celtex.ca)
+7. **Southwire Canada** — SIMpull RW90 Aluminum spec sheet (southwire.com)
+   - Complete CEC Table 4 aluminum ampacity values for #6–1000 kcmil (2015 CEC, identical to 2021 post-harmonization)
+   - Confirmed #6 Al 90°C = 55A (not 60A — 60A is Rule 8-106 residential exception)
+   - Confirmed #300 Al = 195/230/260A at 60/75/90°C
+8. **City Electric Supply Canada** — Amperage Ratings Chart (cityelectricsupply.ca)
+   - CEC ampacity reference chart, confirmed Rule 8-106 residential exception for #6 Al = 60A
 
 ### Verification Status Summary
 
 | Data Table | Status | Notes |
 |-----------|--------|-------|
 | Table 2 (Copper ampacity) | ✅ Verified | #3=115A, #3/0=225A at 90°C confirmed (IAEI). Cu 600kcmil 60°C=355A may differ from NEC 350A — verify |
-| Table 4 (Aluminum ampacity) | ⚠️ Partial | Most values match harmonized NEC. Flagged: #6 Al 90°C=60A (NEC/Southwire show 55A — may be Rule 8-106 residential exception, not base Table 4); #8 Al 60°C=30A (NEC shows 35A); #300 Al 60°C=190A (NEC shows 195A). Verify all against CEC 2021 |
+| Table 4 (Aluminum ampacity) | ✅ Corrected | #6 Al 90°C fixed: 60→55A (60A was Rule 8-106 residential exception). #300 Al fixed: 190/255→195/260A. Verified against Southwire CEC Table 4 spec sheet. #8/#10/#12 Al not in Southwire range — verify against CEC |
 | Table 5A (Temp correction) | ✅ Verified | Formula-checked: sqrt((T_rated-T_amb)/(T_rated-30)) matches |
 | Table 5C (Bundling derating) | ✅ Verified | 0.80/0.70 confirmed (IAEI, Dakota Prep) |
 | Table 8 (Fill percentages) | ✅ Verified | 53%/31%/40% confirmed (multiple sources) |

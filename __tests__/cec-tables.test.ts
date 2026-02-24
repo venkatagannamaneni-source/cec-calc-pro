@@ -82,14 +82,15 @@ describe('CEC Table 2 — Copper Conductor Ampacity', () => {
 });
 
 // ============================================================
-// CEC Table 2 — Aluminum Ampacity (every single value)
+// CEC Table 4 — Aluminum Ampacity (every single value)
+// Source: Southwire SIMpull RW90 Aluminum spec sheet (CEC Table 4 reference, 2015 CEC)
 // ============================================================
-describe('CEC Table 2 — Aluminum Conductor Ampacity', () => {
+describe('CEC Table 4 — Aluminum Conductor Ampacity', () => {
   const expectedAluminum: [string, number, number, number][] = [
     ['12',   15,  20,  25 ],
     ['10',   25,  30,  35 ],
     ['8',    30,  40,  45 ],
-    ['6',    40,  50,  60 ],
+    ['6',    40,  50,  55 ],  // 55A at 90°C (NOT 60A — 60A is Rule 8-106 residential exception)
     ['4',    55,  65,  75 ],
     ['3',    65,  75,  85 ],
     ['2',    75,  90,  100],
@@ -99,7 +100,7 @@ describe('CEC Table 2 — Aluminum Conductor Ampacity', () => {
     ['3/0',  130, 155, 175],
     ['4/0',  150, 180, 205],
     ['250',  170, 205, 230],
-    ['300',  190, 230, 255],
+    ['300',  195, 230, 260],  // Corrected: was 190/255, Southwire confirms 195/260
     ['350',  210, 250, 280],
     ['400',  225, 270, 305],
     ['500',  260, 310, 350],
