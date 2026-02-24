@@ -1,4 +1,6 @@
 // Voltage Drop Calculator — CEC 2021 Rule 8-102
+// Rule 8-102 uses "shall" — this is a mandatory code requirement:
+//   Max 3% voltage drop for branch circuits, 5% total (feeder + branch)
 import { ConductorMaterial, WireSize, resistivity, getWireArea } from '../data/cec-tables';
 
 export type SystemType = 'single' | 'three';

@@ -205,11 +205,21 @@ These are the core ampacity values from CEC 2021 Table 2 (25th Edition, CSA C22.
 **IMPORTANT — Rule 4-006 Termination Temperature:**
 Even when using 90°C rated conductors (RW90, T90), the ampacity must be selected from the 75°C column if equipment terminations are rated 75°C (which is most common for equipment ≤600V). The 90°C column is primarily used for DERATING purposes (applying Table 5A ambient temp correction or Table 5C conductor bundling factors to a higher base ampacity). The app should warn users about this with a note on the wire sizing screen.
 
-**Overcurrent Protection Limits (regardless of table ampacity):**
+**Rule 4-006 Subrules:**
+- **4-006(1):** Equipment rated >100A or connected with conductors larger than No. 1 AWG → use **75°C** column
+- **4-006(2):** Equipment rated ≤100A or connected with No. 1 AWG or smaller → use **60°C** column, UNLESS the equipment is specifically marked for 75°C termination. Most modern equipment (post-harmonization) is rated/tested at 75°C.
+- **4-006(4):** Conductors within 1.2m of termination may use the termination temperature rating regardless of the insulation rating for the rest of the run.
 
+**Overcurrent Protection Limits (Rule 14-104, regardless of table ampacity):**
+
+Copper conductors:
 - 14 AWG: max 15A overcurrent device
 - 12 AWG: max 20A overcurrent device
 - 10 AWG: max 30A overcurrent device
+
+Aluminum conductors (per Rule 14-104(2)(d-e)):
+- 12 AWG: max 15A overcurrent device
+- 10 AWG: max 25A overcurrent device
 
 **Aluminum conductors, not more than 3 in raceway/cable (30°C ambient):**
 
@@ -276,7 +286,7 @@ When ambient temperature differs from 30°C, multiply ampacity by:
 
 ### Voltage Drop Calculation (CEC Rule 8-102)
 
-CEC recommends max 3% voltage drop for branch circuits, 5% total (feeder + branch).
+CEC **requires** max 3% voltage drop for branch circuits, 5% total (feeder + branch). Rule 8-102 uses "shall", making this a mandatory code requirement (not merely a recommendation as in NEC 210.19(A) Informational Note).
 
 **Formula:**
 

@@ -122,6 +122,9 @@ These rules are fundamental to correctness. Getting them wrong produces dangerou
 
 ### Rule 4-006 (Termination Temperature)
 Even when using 90°C rated conductors (RW90, T90), ampacity must be selected from the **75°C column** if equipment terminations are rated 75°C (most common for equipment ≤600V). The 90°C column is primarily used for **derating purposes** only. The app must warn users about this.
+- **4-006(1):** Equipment >100A or >No. 1 AWG → 75°C column
+- **4-006(2):** Equipment ≤100A or ≤No. 1 AWG → **60°C column** unless marked 75°C (most modern equipment is marked 75°C)
+- **4-006(4):** 1.2m rule — conductors within 1.2m of termination may use the termination temp rating
 
 ### Wire Sizing Calculation Flow
 1. Get ambient temp correction factor (Table 5A — NOT Table 5C)
@@ -130,13 +133,18 @@ Even when using 90°C rated conductors (RW90, T90), ampacity must be selected fr
 4. Look up Table 2 for smallest wire where ampacity ≥ adjusted requirement
 5. Apply Rule 4-006 for termination temperature
 
-### Overcurrent Protection Limits
+### Overcurrent Protection Limits (Rule 14-104)
+Copper:
 - 14 AWG: max 15A device
 - 12 AWG: max 20A device
 - 10 AWG: max 30A device
 
+Aluminum (Rule 14-104(2)(d-e)):
+- 12 AWG: max 15A device
+- 10 AWG: max 25A device
+
 ### Voltage Drop (Rule 8-102)
-- Max 3% for branch circuits, 5% total (feeder + branch)
+- **Mandatory** max 3% for branch circuits, 5% total (feeder + branch) — Rule 8-102 uses "shall", not advisory
 - Single phase: `Vd = (2 × K × I × L) / A`
 - Three phase: `Vd = (1.732 × K × I × L) / A`
 

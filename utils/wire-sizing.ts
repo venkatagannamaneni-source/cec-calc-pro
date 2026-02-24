@@ -19,6 +19,7 @@ import {
   getAmbientTempFactor,
   getConductorDeratingFactor,
   overcurrentLimits,
+  aluminumOvercurrentLimits,
 } from '../data/cec-tables';
 
 export interface WireSizingInput {
@@ -99,7 +100,8 @@ export function calculateWireSizing(input: WireSizingInput): WireSizingResult | 
     }
   }
 
-  const ocLimit = overcurrentLimits[selectedEntry.wireSize] ?? null;
+  const ocLimitsTable = material === 'aluminum' ? aluminumOvercurrentLimits : overcurrentLimits;
+  const ocLimit = ocLimitsTable[selectedEntry.wireSize] ?? null;
 
   return {
     recommendedSize: selectedEntry.wireSize,

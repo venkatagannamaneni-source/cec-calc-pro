@@ -298,6 +298,24 @@ describe('Wire Sizing — Overcurrent Protection', () => {
     }));
     expect(result.overcurrentLimit).toBeNull();
   });
+
+  test('aluminum #12 AWG returns 15A overcurrent limit (not 20A like copper)', () => {
+    const result = expectResult(calculateWireSizing({
+      material: 'aluminum', insulationTemp: 75, requiredAmps: 15,
+      ambientTemp: 30, numConductors: 3,
+    }));
+    expect(result.recommendedSize).toBe('12');
+    expect(result.overcurrentLimit).toBe(15);
+  });
+
+  test('aluminum #10 AWG returns 25A overcurrent limit (not 30A like copper)', () => {
+    const result = expectResult(calculateWireSizing({
+      material: 'aluminum', insulationTemp: 75, requiredAmps: 25,
+      ambientTemp: 30, numConductors: 3,
+    }));
+    expect(result.recommendedSize).toBe('10');
+    expect(result.overcurrentLimit).toBe(25);
+  });
 });
 
 // ============================================================

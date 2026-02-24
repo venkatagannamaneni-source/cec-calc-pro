@@ -172,11 +172,18 @@ export const resistivity = {
   },
 };
 
-// Overcurrent protection limits
+// Overcurrent protection limits — CEC Rule 14-104
+// Copper: Rule 14-104(2)(a-c)
 export const overcurrentLimits: Record<string, number> = {
   '14': 15,
   '12': 20,
   '10': 30,
+};
+
+// Aluminum: Rule 14-104(2)(d-e) — lower limits than copper
+export const aluminumOvercurrentLimits: Record<string, number> = {
+  '12': 15,
+  '10': 25,
 };
 
 // Helper to get ampacity table by material
