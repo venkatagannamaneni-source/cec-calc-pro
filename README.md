@@ -735,8 +735,8 @@ All data verified against CSA C22.1:21, Canadian Electrical Code, Part 1 (25th E
 
 | Data Table | Status | Notes |
 |-----------|--------|-------|
-| Table 2 (Copper ampacity) | ✅ Verified | #3=115A, #3/0=225A at 90°C confirmed (IAEI) |
-| Table 4 (Aluminum ampacity) | ⚠️ Partial | Values from README spec, need full CEC verification |
+| Table 2 (Copper ampacity) | ✅ Verified | #3=115A, #3/0=225A at 90°C confirmed (IAEI). Cu 600kcmil 60°C=355A may differ from NEC 350A — verify |
+| Table 4 (Aluminum ampacity) | ⚠️ Partial | Most values match harmonized NEC. Flagged: #6 Al 90°C=60A (NEC/Southwire show 55A — may be Rule 8-106 residential exception, not base Table 4); #8 Al 60°C=30A (NEC shows 35A); #300 Al 60°C=190A (NEC shows 195A). Verify all against CEC 2021 |
 | Table 5A (Temp correction) | ✅ Verified | Formula-checked: sqrt((T_rated-T_amb)/(T_rated-30)) matches |
 | Table 5C (Bundling derating) | ✅ Verified | 0.80/0.70 confirmed (IAEI, Dakota Prep) |
 | Table 8 (Fill percentages) | ✅ Verified | 53%/31%/40% confirmed (multiple sources) |
@@ -772,7 +772,7 @@ Before app store submission, the developer MUST:
 - **The app must include a disclaimer:** “This app is a calculation aid only. Always verify calculations against the official Canadian Electrical Code. Not a substitute for professional engineering judgment.”
 - **Do NOT include copyrighted CEC table reproductions in the app.** The calculation results are derived from standard electrical engineering formulas. The app performs calculations — it does not reproduce the code book.
 - **RevenueCat API keys are placeholders.** Replace with actual keys from RevenueCat dashboard after creating the project there.
-- **All 184 tests pass** against verified data. Test cases include:
+- **All 186 tests pass** against verified data. Test cases include:
 1. #3 AWG copper at 90°C → 115A ✓ (confirms harmonized values)
 1. #3/0 AWG copper at 75°C → 200A ✓
 1. 90°C conductor at 40°C ambient → correction factor 0.91 ✓
