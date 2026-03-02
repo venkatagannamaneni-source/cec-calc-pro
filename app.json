@@ -11,7 +11,10 @@
     "ios": {
       "bundleIdentifier": "com.ceccalcpro.app",
       "supportsTablet": true,
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.ceccalcpro.app",
