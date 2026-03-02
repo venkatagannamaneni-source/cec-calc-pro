@@ -34,21 +34,30 @@ export function useUserPreferencesProvider(): UserPreferencesContextValue {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((raw) => {
-      if (raw) {
-        try {
-          setPreferences({ ...DEFAULT_PREFERENCES, ...JSON.parse(raw) });
-        } catch {}
-      }
-      setIsLoaded(true);
-    });
+    AsyncStorage.getItem(STORAGE_KEY)
+      .then((raw) => {
+        if (raw) {
+          try {
+            setPreferences({ ...DEFAULT_PREFERENCES, ...JSON.parse(raw) });
+          } catch (e) {
+            console.warn('Failed to parse user preferences:', e);
+          }
+        }
+        setIsLoaded(true);
+      })
+      .catch((e) => {
+        console.warn('Failed to load user preferences:', e);
+        setIsLoaded(true);
+      });
   }, []);
 
   const updatePreference = useCallback(
     <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => {
       setPreferences((prev) => {
         const updated = { ...prev, [key]: value };
-        AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated)).catch((e) => {
+          console.warn('Failed to save user preference:', e);
+        });
         return updated;
       });
     },

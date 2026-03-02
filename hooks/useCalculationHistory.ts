@@ -37,18 +37,27 @@ export function useCalculationHistoryProvider(): CalculationHistoryContextValue 
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((raw) => {
-      if (raw) {
-        try {
-          setHistory(JSON.parse(raw));
-        } catch {}
-      }
-      setIsLoaded(true);
-    });
+    AsyncStorage.getItem(STORAGE_KEY)
+      .then((raw) => {
+        if (raw) {
+          try {
+            setHistory(JSON.parse(raw));
+          } catch (e) {
+            console.warn('Failed to parse calculation history:', e);
+          }
+        }
+        setIsLoaded(true);
+      })
+      .catch((e) => {
+        console.warn('Failed to load calculation history:', e);
+        setIsLoaded(true);
+      });
   }, []);
 
   const persist = useCallback((entries: CalculationHistoryEntry[]) => {
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(entries)).catch((e) => {
+      console.warn('Failed to persist calculation history:', e);
+    });
   }, []);
 
   const addEntry = useCallback(
@@ -74,7 +83,9 @@ export function useCalculationHistoryProvider(): CalculationHistoryContextValue 
 
   const clearAll = useCallback(() => {
     setHistory([]);
-    AsyncStorage.removeItem(STORAGE_KEY);
+    AsyncStorage.removeItem(STORAGE_KEY).catch((e) => {
+      console.warn('Failed to clear calculation history:', e);
+    });
   }, []);
 
   return { history, addEntry, getRecent, clearAll, isLoaded };

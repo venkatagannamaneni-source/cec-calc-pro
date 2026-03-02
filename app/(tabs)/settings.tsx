@@ -92,8 +92,23 @@ export default function SettingsScreen() {
     );
   };
 
-  const handleRestorePurchases = () => {
-    Alert.alert('Restore Purchases', 'This feature requires RevenueCat API keys to be configured.');
+  const handleRestorePurchases = async () => {
+    try {
+      const Purchases = (await import('react-native-purchases')).default;
+      await Purchases.restorePurchases();
+      Alert.alert('Purchases Restored', 'Your purchases have been restored successfully.');
+    } catch {
+      Alert.alert(
+        'Restore Failed',
+        'Unable to restore purchases. Please ensure you are signed in to your App Store or Google Play account and try again.',
+      );
+    }
+  };
+
+  const openURL = (url: string) => {
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Unable to Open', 'Could not open the link. Please try again later.');
+    });
   };
 
   return (
@@ -186,17 +201,17 @@ export default function SettingsScreen() {
         <SettingsRow
           icon="lock-outline"
           label="Privacy Policy"
-          onPress={() => Linking.openURL('https://example.com/privacy')}
+          onPress={() => openURL('https://ceccalcpro.com/privacy')}
         />
         <SettingsRow
           icon="file-document-outline"
           label="Terms of Service"
-          onPress={() => Linking.openURL('https://example.com/terms')}
+          onPress={() => openURL('https://ceccalcpro.com/terms')}
         />
         <SettingsRow
           icon="email-outline"
           label="Send Feedback"
-          onPress={() => Linking.openURL('mailto:support@ceccalcpro.com')}
+          onPress={() => openURL('mailto:support@ceccalcpro.com')}
         />
       </CalculatorCard>
     </ScrollView>
