@@ -22,8 +22,7 @@
       "versionCode": 1
     },
     "plugins": [
-      "expo-router",
-      ["react-native-purchases", {}]
+      "expo-router"
     ],
     "web": {
       "bundler": "metro",
