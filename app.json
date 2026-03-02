@@ -27,6 +27,13 @@
     "web": {
       "bundler": "metro",
       "favicon": "./assets/images/favicon.png"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c2a040a7-fe96-4032-92a3-4449d23a4afa"
+      }
+    },
+    "owner": "raviteja8698"
   }
 }
