@@ -10,7 +10,7 @@ interface SoftLockOverlayProps {
   children: React.ReactNode;
 }
 
-export function SoftLockOverlay({ isLocked, isLoading, children }: SoftLockOverlayProps) {
+export function SoftLockOverlay({ isLocked, isLoading, children }: SoftLockOverlayProps): React.ReactNode {
   const router = useRouter();
 
   if (isLoading) {
@@ -22,7 +22,7 @@ export function SoftLockOverlay({ isLocked, isLoading, children }: SoftLockOverl
   }
 
   if (!isLocked) {
-    return <>{children}</>;
+    return children;
   }
 
   return (

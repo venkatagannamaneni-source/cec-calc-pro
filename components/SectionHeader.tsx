@@ -6,7 +6,7 @@ interface SectionHeaderProps {
   title: string;
 }
 
-export function SectionHeader({ title }: SectionHeaderProps) {
+export function SectionHeader({ title }: SectionHeaderProps): React.ReactElement {
   return (
     <View style={styles.container}>
       <View style={styles.accent} />

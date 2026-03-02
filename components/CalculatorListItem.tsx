@@ -13,8 +13,31 @@ interface CalculatorListItemProps {
   onPress: () => void;
 }
 
-export function CalculatorListItem({ name, description, icon, cecReference, tier, onPress }: CalculatorListItemProps) {
+export function CalculatorListItem({ name, description, icon, cecReference, tier, onPress }: CalculatorListItemProps): React.ReactElement {
   const isComingSoon = tier === 'coming-soon';
+
+  function renderBadge(): React.ReactElement {
+    if (isComingSoon) {
+      return (
+        <View style={styles.comingSoonBadge}>
+          <Text style={styles.comingSoonText}>Soon</Text>
+        </View>
+      );
+    }
+
+    const isTierPro = tier === 'pro';
+    return (
+      <>
+        <View style={[styles.badge, isTierPro ? styles.proBadge : styles.freeBadge]}>
+          {isTierPro && (
+            <MaterialCommunityIcons name="lock" size={10} color={Colors.background} style={{ marginRight: 3 }} />
+          )}
+          <Text style={styles.badgeText}>{isTierPro ? 'PRO' : 'FREE'}</Text>
+        </View>
+        <MaterialCommunityIcons name="chevron-right" size={20} color={Colors.textSecondary} />
+      </>
+    );
+  }
 
   return (
     <TouchableOpacity
@@ -29,26 +52,10 @@ export function CalculatorListItem({ name, description, icon, cecReference, tier
       <View style={styles.textContainer}>
         <Text style={styles.name} numberOfLines={1}>{name}</Text>
         <Text style={styles.description} numberOfLines={2}>{description}</Text>
-        {cecReference !== '' && (
-          <Text style={styles.cecRef}>{cecReference}</Text>
-        )}
+        {cecReference && <Text style={styles.cecRef}>{cecReference}</Text>}
       </View>
       <View style={styles.rightContainer}>
-        {tier === 'coming-soon' ? (
-          <View style={styles.comingSoonBadge}>
-            <Text style={styles.comingSoonText}>Soon</Text>
-          </View>
-        ) : (
-          <>
-            <View style={[styles.badge, tier === 'pro' ? styles.proBadge : styles.freeBadge]}>
-              {tier === 'pro' && (
-                <MaterialCommunityIcons name="lock" size={10} color={Colors.background} style={{ marginRight: 3 }} />
-              )}
-              <Text style={styles.badgeText}>{tier === 'pro' ? 'PRO' : 'FREE'}</Text>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={20} color={Colors.textSecondary} />
-          </>
-        )}
+        {renderBadge()}
       </View>
     </TouchableOpacity>
   );

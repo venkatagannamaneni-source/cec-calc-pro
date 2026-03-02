@@ -10,22 +10,24 @@ import { useCalculationHistory } from '../../hooks/useCalculationHistory';
 import { useUserPreferences } from '../../hooks/useUserPreferences';
 import type { AppIconName } from '../../data/calculator-registry';
 
-function SegmentedControl({ options, selectedValue, onValueChange }: {
-  options: { label: string; value: string }[];
+interface SegmentedControlProps {
+  options: Array<{ label: string; value: string }>;
   selectedValue: string;
   onValueChange: (value: string) => void;
-}) {
+}
+
+function SegmentedControl({ options, selectedValue, onValueChange }: SegmentedControlProps): React.ReactElement {
   return (
     <View style={segStyles.container}>
       {options.map((opt) => {
-        const active = opt.value === selectedValue;
+        const isActive = opt.value === selectedValue;
         return (
           <TouchableOpacity
             key={opt.value}
-            style={[segStyles.segment, active && segStyles.activeSegment]}
+            style={[segStyles.segment, isActive && segStyles.activeSegment]}
             onPress={() => onValueChange(opt.value)}
           >
-            <Text style={[segStyles.label, active && segStyles.activeLabel]}>{opt.label}</Text>
+            <Text style={[segStyles.label, isActive && segStyles.activeLabel]}>{opt.label}</Text>
           </TouchableOpacity>
         );
       })}
@@ -60,29 +62,38 @@ const segStyles = StyleSheet.create({
   },
 });
 
-function SettingsRow({ icon, label, value, onPress }: {
+interface SettingsRowProps {
   icon: AppIconName;
   label: string;
   value?: string;
   onPress?: () => void;
-}) {
+}
+
+function SettingsRow({ icon, label, value, onPress }: SettingsRowProps): React.ReactElement {
+  const isClickable = !!onPress;
+
   return (
-    <TouchableOpacity style={styles.settingsRow} onPress={onPress} disabled={!onPress} activeOpacity={onPress ? 0.7 : 1}>
+    <TouchableOpacity
+      style={styles.settingsRow}
+      onPress={onPress}
+      disabled={!isClickable}
+      activeOpacity={isClickable ? 0.7 : 1}
+    >
       <MaterialCommunityIcons name={icon} size={20} color={Colors.textSecondary} />
       <Text style={styles.settingsRowLabel}>{label}</Text>
       {value && <Text style={styles.settingsRowValue}>{value}</Text>}
-      {onPress && <MaterialCommunityIcons name="chevron-right" size={18} color={Colors.textSecondary} />}
+      {isClickable && <MaterialCommunityIcons name="chevron-right" size={18} color={Colors.textSecondary} />}
     </TouchableOpacity>
   );
 }
 
-export default function SettingsScreen() {
+export default function SettingsScreen(): React.ReactElement {
   const router = useRouter();
   const { isPro } = useProStatus();
   const { history, clearAll } = useCalculationHistory();
   const { preferences, updatePreference } = useUserPreferences();
 
-  const handleClearHistory = () => {
+  function handleClearHistory(): void {
     Alert.alert(
       'Clear All History',
       `Delete all ${history.length} saved calculations?`,
@@ -91,9 +102,9 @@ export default function SettingsScreen() {
         { text: 'Clear', style: 'destructive', onPress: clearAll },
       ],
     );
-  };
+  }
 
-  const handleRestorePurchases = async () => {
+  async function handleRestorePurchases(): Promise<void> {
     try {
       const Purchases = (await import('react-native-purchases')).default;
       await Purchases.restorePurchases();
@@ -104,13 +115,13 @@ export default function SettingsScreen() {
         'Unable to restore purchases. Please ensure you are signed in to your App Store or Google Play account and try again.',
       );
     }
-  };
+  }
 
-  const openURL = (url: string) => {
+  function openURL(url: string): void {
     Linking.openURL(url).catch(() => {
       Alert.alert('Unable to Open', 'Could not open the link. Please try again later.');
     });
-  };
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>

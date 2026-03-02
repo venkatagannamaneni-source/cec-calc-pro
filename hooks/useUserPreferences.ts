@@ -34,31 +34,35 @@ export function useUserPreferencesProvider(): UserPreferencesContextValue {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
-      .then((raw) => {
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw);
-            if (typeof parsed === 'object' && parsed !== null) {
-              const validated: UserPreferences = { ...DEFAULT_PREFERENCES };
-              if (parsed.unitSystem === 'imperial' || parsed.unitSystem === 'metric') {
-                validated.unitSystem = parsed.unitSystem;
+    function loadPreferences(): void {
+      AsyncStorage.getItem(STORAGE_KEY)
+        .then((raw) => {
+          if (raw) {
+            try {
+              const parsed = JSON.parse(raw);
+              if (typeof parsed === 'object' && parsed !== null) {
+                const validated: UserPreferences = { ...DEFAULT_PREFERENCES };
+                if (parsed.unitSystem === 'imperial' || parsed.unitSystem === 'metric') {
+                  validated.unitSystem = parsed.unitSystem;
+                }
+                if (parsed.defaultMaterial === 'copper' || parsed.defaultMaterial === 'aluminum') {
+                  validated.defaultMaterial = parsed.defaultMaterial;
+                }
+                setPreferences(validated);
               }
-              if (parsed.defaultMaterial === 'copper' || parsed.defaultMaterial === 'aluminum') {
-                validated.defaultMaterial = parsed.defaultMaterial;
-              }
-              setPreferences(validated);
+            } catch (e) {
+              console.warn('Failed to parse user preferences:', e);
             }
-          } catch (e) {
-            console.warn('Failed to parse user preferences:', e);
           }
-        }
-        setIsLoaded(true);
-      })
-      .catch((e) => {
-        console.warn('Failed to load user preferences:', e);
-        setIsLoaded(true);
-      });
+          setIsLoaded(true);
+        })
+        .catch((e) => {
+          console.warn('Failed to load user preferences:', e);
+          setIsLoaded(true);
+        });
+    }
+
+    loadPreferences();
   }, []);
 
   const updatePreference = useCallback(

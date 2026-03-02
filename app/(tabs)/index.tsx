@@ -12,16 +12,16 @@ import { useCalculationHistory } from '../../hooks/useCalculationHistory';
 import { CALCULATORS, getCalculatorById } from '../../data/calculator-registry';
 import { QUICK_REFERENCES } from '../../data/quick-reference';
 
-export default function HomeScreen() {
+export default function HomeScreen(): React.ReactElement {
   const router = useRouter();
   const { isPro } = useProStatus();
   const { getRecent } = useCalculationHistory();
 
   const recentCalcs = getRecent(3);
 
-  const navigateToCalculator = (id: string) => {
+  function navigateToCalculator(id: string): void {
     router.push(`/calculators/${id}` as Href);
-  };
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>

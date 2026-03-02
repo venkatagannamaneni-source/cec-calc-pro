@@ -39,18 +39,48 @@ function buildSections(): Section[] {
   return sections;
 }
 
-const sections = buildSections();
+function renderListItem(
+  item: SectionItem,
+  onNavigate: (id: string) => void,
+  onComingSoon: () => void,
+): React.ReactElement {
+  if (item.type === 'coming-soon') {
+    return (
+      <CalculatorListItem
+        name={item.data.name}
+        description={item.data.description}
+        icon={item.data.icon}
+        cecReference=""
+        tier="coming-soon"
+        onPress={onComingSoon}
+      />
+    );
+  }
 
-export default function CalculatorsDirectoryScreen() {
+  const calc = item.data as CalculatorDefinition;
+  return (
+    <CalculatorListItem
+      name={calc.name}
+      description={calc.description}
+      icon={calc.icon}
+      cecReference={calc.cecReference}
+      tier={calc.tier}
+      onPress={() => onNavigate(calc.id)}
+    />
+  );
+}
+
+export default function CalculatorsDirectoryScreen(): React.ReactElement {
   const router = useRouter();
+  const sections = buildSections();
 
-  const navigateToCalculator = (id: string) => {
+  function navigateToCalculator(id: string): void {
     router.push(`/calculators/${id}` as Href);
-  };
+  }
 
-  const handleComingSoon = () => {
+  function handleComingSoon(): void {
     Alert.alert('Coming Soon', 'This calculator will be available in a future update.');
-  };
+  }
 
   return (
     <SectionList
@@ -62,32 +92,7 @@ export default function CalculatorsDirectoryScreen() {
       renderSectionHeader={({ section }) => (
         <SectionHeader title={section.title} />
       )}
-      renderItem={({ item }) => {
-        if (item.type === 'coming-soon') {
-          return (
-            <CalculatorListItem
-              name={item.data.name}
-              description={item.data.description}
-              icon={item.data.icon}
-              cecReference=""
-              tier="coming-soon"
-              onPress={handleComingSoon}
-            />
-          );
-        }
-
-        const calc = item.data as CalculatorDefinition;
-        return (
-          <CalculatorListItem
-            name={calc.name}
-            description={calc.description}
-            icon={calc.icon}
-            cecReference={calc.cecReference}
-            tier={calc.tier}
-            onPress={() => navigateToCalculator(calc.id)}
-          />
-        );
-      }}
+      renderItem={({ item }) => renderListItem(item, navigateToCalculator, handleComingSoon)}
       ListFooterComponent={
         <Text style={styles.footer}>
           All calculations per CEC 2021

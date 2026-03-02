@@ -37,34 +37,38 @@ export function useCalculationHistoryProvider(): CalculationHistoryContextValue 
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
-      .then((raw) => {
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-              const valid = parsed.filter(
-                (e: unknown): e is CalculationHistoryEntry =>
-                  typeof e === 'object' &&
-                  e !== null &&
-                  typeof (e as CalculationHistoryEntry).id === 'string' &&
-                  typeof (e as CalculationHistoryEntry).calculatorId === 'string' &&
-                  typeof (e as CalculationHistoryEntry).timestamp === 'number' &&
-                  typeof (e as CalculationHistoryEntry).inputSummary === 'string' &&
-                  typeof (e as CalculationHistoryEntry).resultPreview === 'string',
-              );
-              setHistory(valid);
+    function loadHistory(): void {
+      AsyncStorage.getItem(STORAGE_KEY)
+        .then((raw) => {
+          if (raw) {
+            try {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed)) {
+                const valid = parsed.filter(
+                  (e: unknown): e is CalculationHistoryEntry =>
+                    typeof e === 'object' &&
+                    e !== null &&
+                    typeof (e as CalculationHistoryEntry).id === 'string' &&
+                    typeof (e as CalculationHistoryEntry).calculatorId === 'string' &&
+                    typeof (e as CalculationHistoryEntry).timestamp === 'number' &&
+                    typeof (e as CalculationHistoryEntry).inputSummary === 'string' &&
+                    typeof (e as CalculationHistoryEntry).resultPreview === 'string',
+                );
+                setHistory(valid);
+              }
+            } catch (e) {
+              console.warn('Failed to parse calculation history:', e);
             }
-          } catch (e) {
-            console.warn('Failed to parse calculation history:', e);
           }
-        }
-        setIsLoaded(true);
-      })
-      .catch((e) => {
-        console.warn('Failed to load calculation history:', e);
-        setIsLoaded(true);
-      });
+          setIsLoaded(true);
+        })
+        .catch((e) => {
+          console.warn('Failed to load calculation history:', e);
+          setIsLoaded(true);
+        });
+    }
+
+    loadHistory();
   }, []);
 
   const persist = useCallback((entries: CalculationHistoryEntry[]) => {

@@ -7,16 +7,19 @@ interface QuickReferenceCardProps {
   items: { label: string; value: string }[];
 }
 
-export function QuickReferenceCard({ title, items }: QuickReferenceCardProps) {
+export function QuickReferenceCard({ title, items }: QuickReferenceCardProps): React.ReactElement {
   return (
     <View style={styles.card}>
       <Text style={styles.title}>{title}</Text>
-      {items.map((item, index) => (
-        <View key={index} style={[styles.row, index < items.length - 1 && styles.rowBorder]}>
-          <Text style={styles.label}>{item.label}</Text>
-          <Text style={styles.value}>{item.value}</Text>
-        </View>
-      ))}
+      {items.map((item, index) => {
+        const showBorder = index < items.length - 1;
+        return (
+          <View key={index} style={[styles.row, showBorder && styles.rowBorder]}>
+            <Text style={styles.label}>{item.label}</Text>
+            <Text style={styles.value}>{item.value}</Text>
+          </View>
+        );
+      })}
     </View>
   );
 }

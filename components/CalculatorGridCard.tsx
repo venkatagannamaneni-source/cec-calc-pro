@@ -12,20 +12,21 @@ interface CalculatorGridCardProps {
   onPress: () => void;
 }
 
-export function CalculatorGridCard({ name, description, icon, tier, onPress }: CalculatorGridCardProps) {
+export function CalculatorGridCard({ name, description, icon, tier, onPress }: CalculatorGridCardProps): React.ReactElement {
+  const isTierPro = tier === 'pro';
+  const badgeLabel = isTierPro ? 'PRO' : 'FREE';
+
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.6}>
       <View style={styles.topRow}>
         <View style={styles.iconContainer}>
           <MaterialCommunityIcons name={icon} size={24} color={Colors.accent} />
         </View>
-        <View style={[styles.badge, tier === 'pro' ? styles.proBadge : styles.freeBadge]}>
-          {tier === 'pro' && (
+        <View style={[styles.badge, isTierPro ? styles.proBadge : styles.freeBadge]}>
+          {isTierPro && (
             <MaterialCommunityIcons name="lock" size={10} color={Colors.background} style={{ marginRight: 3 }} />
           )}
-          <Text style={styles.badgeText}>
-            {tier === 'pro' ? 'PRO' : 'FREE'}
-          </Text>
+          <Text style={styles.badgeText}>{badgeLabel}</Text>
         </View>
       </View>
       <Text style={styles.name} numberOfLines={1}>{name}</Text>
