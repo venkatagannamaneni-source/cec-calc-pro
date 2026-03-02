@@ -1,167 +1,105 @@
-// Wire Sizing Calculator (FREE) — CEC 2021 Table 2, Table 5A, Table 5C, Rule 4-006
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { CalculatorCard } from '../../components/CalculatorCard';
-import { ResultDisplay } from '../../components/ResultDisplay';
-import { PickerSelect } from '../../components/PickerSelect';
-import { NumberInput } from '../../components/NumberInput';
+import { useRouter } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { CalculatorGridCard } from '../../components/CalculatorGridCard';
+import { RecentCalculationItem } from '../../components/RecentCalculationItem';
+import { QuickReferenceCard } from '../../components/QuickReferenceCard';
 import { Colors } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
-import { useCalculation } from '../../hooks/useCalculation';
-import { calculateWireSizing, WireSizingInput, WireSizingResult } from '../../utils/wire-sizing';
-import { ConductorMaterial, InsulationTemp } from '../../data/cec-tables';
+import { useProStatus } from '../../hooks/useProStatus';
+import { useCalculationHistory } from '../../hooks/useCalculationHistory';
+import { CALCULATORS, getCalculatorById } from '../../data/calculator-registry';
+import { QUICK_REFERENCES } from '../../data/quick-reference';
 
-const materialOptions = [
-  { label: 'Copper', value: 'copper' },
-  { label: 'Aluminum', value: 'aluminum' },
-];
+export default function HomeScreen() {
+  const router = useRouter();
+  const { isPro } = useProStatus();
+  const { getRecent } = useCalculationHistory();
 
-const insulationOptions = [
-  { label: '60°C (TW)', value: '60' },
-  { label: '75°C (T90 Nylon)', value: '75' },
-  { label: '90°C (RW90 XLPE)', value: '90' },
-];
+  const recentCalcs = getRecent(3);
 
-const ambientTempOptions = [
-  { label: '10°C or less', value: '10' },
-  { label: '15°C', value: '15' },
-  { label: '20°C', value: '20' },
-  { label: '25°C', value: '25' },
-  { label: '30°C (Standard)', value: '30' },
-  { label: '35°C', value: '35' },
-  { label: '40°C', value: '40' },
-  { label: '45°C', value: '45' },
-  { label: '50°C', value: '50' },
-  { label: '55°C', value: '55' },
-  { label: '60°C', value: '60' },
-];
-
-const conductorCountOptions = [
-  { label: '3 or fewer', value: '3' },
-  { label: '4–6', value: '5' },
-  { label: '7–24', value: '10' },
-  { label: '25–42', value: '30' },
-  { label: '43+', value: '50' },
-];
-
-export default function WireSizingScreen() {
-  const [material, setMaterial] = useState<string>('copper');
-  const [insulationTemp, setInsulationTemp] = useState<string>('75');
-  const [requiredAmps, setRequiredAmps] = useState('');
-  const [ambientTemp, setAmbientTemp] = useState<string>('30');
-  const [numConductors, setNumConductors] = useState<string>('3');
-
-  const { result, error, calculate } = useCalculation<WireSizingInput, WireSizingResult>(
-    calculateWireSizing,
-  );
-
-  const handleCalculate = () => {
-    const amps = parseFloat(requiredAmps);
-    if (isNaN(amps) || amps <= 0) return;
-
-    calculate({
-      material: material as ConductorMaterial,
-      insulationTemp: parseInt(insulationTemp) as InsulationTemp,
-      requiredAmps: amps,
-      ambientTemp: parseInt(ambientTemp),
-      numConductors: parseInt(numConductors),
-    });
+  const navigateToCalculator = (id: string) => {
+    router.push(`/calculators/${id}` as any);
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={Typography.title}>Wire Sizing Calculator</Text>
-        <Text style={Typography.cecReference}>CEC 2021 Table 2, Rule 4-004, Rule 4-006</Text>
+        <View style={styles.titleRow}>
+          <Text style={Typography.title}>CEC Calc Pro</Text>
+          {isPro && (
+            <View style={styles.proBadge}>
+              <Text style={styles.proBadgeText}>PRO</Text>
+            </View>
+          )}
+        </View>
+        <Text style={styles.subtitle}>Canadian Electrical Code 2021</Text>
       </View>
 
-      <CalculatorCard>
-        <PickerSelect
-          label="Conductor Material"
-          options={materialOptions}
-          selectedValue={material}
-          onValueChange={setMaterial}
-        />
-        <PickerSelect
-          label="Insulation Temperature Rating"
-          options={insulationOptions}
-          selectedValue={insulationTemp}
-          onValueChange={setInsulationTemp}
-        />
-        <NumberInput
-          label="Required Ampacity"
-          value={requiredAmps}
-          onChangeText={setRequiredAmps}
-          suffix="A"
-          placeholder="Enter amps"
-        />
-        <PickerSelect
-          label="Ambient Temperature"
-          options={ambientTempOptions}
-          selectedValue={ambientTemp}
-          onValueChange={setAmbientTemp}
-        />
-        <PickerSelect
-          label="Conductors in Raceway"
-          options={conductorCountOptions}
-          selectedValue={numConductors}
-          onValueChange={setNumConductors}
-        />
-      </CalculatorCard>
-
-      <TouchableOpacity style={styles.calculateButton} onPress={handleCalculate}>
-        <Text style={styles.calculateButtonText}>Calculate</Text>
-      </TouchableOpacity>
-
-      {error && (
-        <CalculatorCard>
-          <Text style={styles.errorText}>{error}</Text>
-        </CalculatorCard>
+      {/* PRO Upgrade Banner (FREE users only) */}
+      {!isPro && (
+        <TouchableOpacity
+          style={styles.upgradeBanner}
+          onPress={() => router.push('/paywall')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.upgradeBannerContent}>
+            <MaterialCommunityIcons name="star-circle" size={24} color={Colors.proBadge} />
+            <View style={styles.upgradeBannerText}>
+              <Text style={styles.upgradeBannerTitle}>Unlock all calculators</Text>
+              <Text style={styles.upgradeBannerDesc}>Get voltage drop, conduit fill, box fill & more</Text>
+            </View>
+            <Text style={styles.upgradeButtonText}>Upgrade</Text>
+          </View>
+        </TouchableOpacity>
       )}
 
-      {result && (
-        <CalculatorCard>
-          <ResultDisplay
-            label="Recommended Wire Size"
-            value={`#${result.recommendedSize} AWG`}
-          />
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Ampacity at rated temp:</Text>
-            <Text style={Typography.body}>{result.ampacityAtRatedTemp}A</Text>
+      {/* Quick Access Grid */}
+      <Text style={[Typography.sectionHeader, styles.sectionTitle]}>CALCULATORS</Text>
+      <View style={styles.grid}>
+        {CALCULATORS.map((calc, index) => (
+          <View key={calc.id} style={[styles.gridItem, index % 2 === 0 && styles.gridItemLeft]}>
+            <CalculatorGridCard
+              name={calc.shortName}
+              description={calc.description}
+              icon={calc.icon}
+              tier={calc.tier}
+              onPress={() => navigateToCalculator(calc.id)}
+            />
           </View>
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Adjusted required ampacity:</Text>
-            <Text style={Typography.body}>{result.adjustedRequiredAmpacity}A</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Temp correction factor:</Text>
-            <Text style={Typography.body}>{result.tempCorrectionFactor}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Derating factor:</Text>
-            <Text style={Typography.body}>{result.deratingFactor}</Text>
-          </View>
-          {result.overcurrentLimit && (
-            <View style={styles.detailRow}>
-              <Text style={Typography.bodySecondary}>Max overcurrent device:</Text>
-              <Text style={Typography.body}>{result.overcurrentLimit}A</Text>
-            </View>
-          )}
-          {result.terminationWarning && (
-            <View style={styles.warningBox}>
-              <Text style={styles.warningText}>
-                Rule 4-006: Equipment terminations are typically rated 75°C.
-                {result.terminationAmpacity && ` The 75°C ampacity for this wire is ${result.terminationAmpacity}A.`}
-                {' '}The 90°C rating is used for derating calculations only.
-              </Text>
-            </View>
-          )}
-          <Text style={[Typography.cecReference, { marginTop: 12, textAlign: 'center' }]}>
-            {result.cecReference}
-          </Text>
-        </CalculatorCard>
+        ))}
+        {CALCULATORS.length % 2 !== 0 && <View style={styles.gridItem} />}
+      </View>
+
+      {/* Recent Calculations */}
+      {recentCalcs.length > 0 && (
+        <>
+          <Text style={[Typography.sectionHeader, styles.sectionTitle]}>RECENT CALCULATIONS</Text>
+          {recentCalcs.map((entry) => {
+            const calc = getCalculatorById(entry.calculatorId);
+            return (
+              <RecentCalculationItem
+                key={entry.id}
+                calculatorName={calc?.shortName ?? entry.calculatorId}
+                calculatorIcon={calc?.icon ?? 'calculator'}
+                resultPreview={entry.resultPreview}
+                timestamp={entry.timestamp}
+                onPress={() => navigateToCalculator(entry.calculatorId)}
+              />
+            );
+          })}
+        </>
       )}
 
+      {/* Quick Reference */}
+      <Text style={[Typography.sectionHeader, styles.sectionTitle]}>QUICK REFERENCE</Text>
+      {QUICK_REFERENCES.map((ref, index) => (
+        <QuickReferenceCard key={index} title={ref.title} items={ref.items} />
+      ))}
+
+      {/* Disclaimer */}
       <Text style={styles.disclaimer}>
         This app is a calculation aid only. Always verify calculations against the official Canadian Electrical Code. Not a substitute for professional engineering judgment.
       </Text>
@@ -170,58 +108,83 @@ export default function WireSizingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { padding: 16, paddingBottom: 32 },
+  header: { marginBottom: 20 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  subtitle: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    marginTop: 4,
   },
-  content: {
-    padding: 16,
-    paddingBottom: 32,
+  proBadge: {
+    backgroundColor: Colors.proBadge,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 10,
   },
-  header: {
-    marginBottom: 16,
+  proBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: Colors.surface,
   },
-  calculateButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: 8,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginBottom: 16,
+  upgradeBanner: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    marginBottom: 20,
+    overflow: 'hidden',
   },
-  calculateButtonText: {
-    color: Colors.buttonText,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  detailRow: {
+  upgradeBannerContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    alignItems: 'center',
+    padding: 14,
   },
-  warningBox: {
-    backgroundColor: '#3E2723',
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 12,
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.warning,
+  upgradeBannerText: {
+    flex: 1,
+    marginLeft: 12,
   },
-  warningText: {
-    color: Colors.warning,
-    fontSize: 13,
+  upgradeBannerTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.textPrimary,
   },
-  errorText: {
-    color: Colors.error,
-    fontSize: 16,
-    textAlign: 'center',
+  upgradeBannerDesc: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  upgradeButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  sectionTitle: {
+    marginBottom: 10,
+    paddingHorizontal: 0,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+  },
+  gridItem: {
+    width: '50%',
+    paddingLeft: 4,
+    paddingRight: 4,
+    marginBottom: 8,
+  },
+  gridItemLeft: {
+    paddingLeft: 0,
+    paddingRight: 4,
   },
   disclaimer: {
     color: Colors.textSecondary,
     fontSize: 11,
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: 20,
     fontStyle: 'italic',
+    lineHeight: 16,
   },
 });

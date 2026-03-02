@@ -47,4 +47,11 @@ export const Typography = StyleSheet.create({
     color: '#1B5E20',
     fontStyle: 'italic',
   },
+  sectionHeader: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#B0BEC5',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
 });

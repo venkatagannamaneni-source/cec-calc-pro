@@ -1,16 +1,7 @@
-// Tab navigator layout
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
-
-function TabIcon({ label, focused }: { label: string; focused: boolean }) {
-  return (
-    <Text style={{ fontSize: 10, color: focused ? Colors.accent : Colors.textSecondary }}>
-      {label}
-    </Text>
-  );
-}
 
 export default function TabLayout() {
   return (
@@ -29,36 +20,29 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Wire Sizing',
-          tabBarIcon: ({ focused }) => <TabIcon label="Wire" focused={focused} />,
+          title: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="home" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="converter"
+        name="calculators"
         options={{
-          title: 'Converter',
-          tabBarIcon: ({ focused }) => <TabIcon label="Conv" focused={focused} />,
+          headerShown: false,
+          title: 'Calculators',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="calculator-variant" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="voltage-drop"
+        name="settings"
         options={{
-          title: 'Voltage Drop',
-          tabBarIcon: ({ focused }) => <TabIcon label="VDrop" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="conduit-fill"
-        options={{
-          title: 'Conduit Fill',
-          tabBarIcon: ({ focused }) => <TabIcon label="Cond" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="box-fill"
-        options={{
-          title: 'Box Fill',
-          tabBarIcon: ({ focused }) => <TabIcon label="Box" focused={focused} />,
+          title: 'Settings',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="cog" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>

@@ -1,22 +1,23 @@
-// Conduit Fill Calculator (PRO) — CEC 2021 Rule 12-910, Tables 6/8/9
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { CalculatorCard } from '../../components/CalculatorCard';
-import { ResultDisplay } from '../../components/ResultDisplay';
-import { PickerSelect } from '../../components/PickerSelect';
-import { NumberInput } from '../../components/NumberInput';
-import { ProBadge } from '../../components/ProBadge';
-import { Colors } from '../../constants/colors';
-import { Typography } from '../../constants/typography';
-import { useProStatus } from '../../hooks/useProStatus';
-import { useCalculation } from '../../hooks/useCalculation';
+import * as Haptics from 'expo-haptics';
+import { CalculatorCard } from '../../../components/CalculatorCard';
+import { ResultDisplay } from '../../../components/ResultDisplay';
+import { PickerSelect } from '../../../components/PickerSelect';
+import { NumberInput } from '../../../components/NumberInput';
+import { SoftLockOverlay } from '../../../components/SoftLockOverlay';
+import { Colors } from '../../../constants/colors';
+import { Typography } from '../../../constants/typography';
+import { useProStatus } from '../../../hooks/useProStatus';
+import { useCalculation } from '../../../hooks/useCalculation';
+import { useCalculationHistory } from '../../../hooks/useCalculationHistory';
 import {
   calculateConduitFill,
   ConduitFillInput,
   ConduitFillResult,
   WireEntry,
-} from '../../utils/conduit-fill';
-import { WireSize } from '../../data/cec-tables';
+} from '../../../utils/conduit-fill';
+import { WireSize } from '../../../data/cec-tables';
 import {
   ConduitType,
   InsulationType,
@@ -25,7 +26,7 @@ import {
   tradeSizes,
   insulationTypes,
   conduitFillWireSizes,
-} from '../../data/conduit-data';
+} from '../../../data/conduit-data';
 
 const conduitTypeOptions = conduitTypes.map((t) => ({ label: t, value: t }));
 const tradeSizeOptions = tradeSizes.map((t) => ({ label: t, value: t }));
@@ -40,6 +41,7 @@ interface WireRow {
 
 export default function ConduitFillScreen() {
   const { isPro } = useProStatus();
+  const { addEntry } = useCalculationHistory();
   const [conduitType, setConduitType] = useState<string>('EMT');
   const [tradeSize, setTradeSize] = useState<string>('1/2"');
   const [wireRows, setWireRows] = useState<WireRow[]>([
@@ -49,10 +51,6 @@ export default function ConduitFillScreen() {
   const { result, error, calculate } = useCalculation<ConduitFillInput, ConduitFillResult>(
     calculateConduitFill,
   );
-
-  if (!isPro) {
-    return <ProBadge isPro={false}><View /></ProBadge>;
-  }
 
   const updateRow = (index: number, field: keyof WireRow, value: string) => {
     const updated = [...wireRows];
@@ -80,20 +78,29 @@ export default function ConduitFillScreen() {
 
     if (wires.length === 0) return;
 
-    calculate({
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    const input: ConduitFillInput = {
       conduitType: conduitType as ConduitType,
       tradeSize: tradeSize as TradeSize,
       wires,
-    });
+    };
+
+    const calcResult = calculateConduitFill(input);
+    if (isPro && calcResult && !('error' in calcResult)) {
+      const totalWires = wires.reduce((sum, w) => sum + w.quantity, 0);
+      addEntry({
+        calculatorId: 'conduit-fill',
+        inputSummary: `${totalWires} wires in ${tradeSize} ${conduitType}`,
+        resultPreview: `${calcResult.fillPercent}%`,
+      });
+    }
+
+    calculate(input);
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={Typography.title}>Conduit Fill Calculator</Text>
-        <Text style={Typography.cecReference}>CEC 2021 Rule 12-910, Tables 6/8/9</Text>
-      </View>
-
       <CalculatorCard>
         <PickerSelect label="Conduit Type" options={conduitTypeOptions} selectedValue={conduitType} onValueChange={setConduitType} />
         <PickerSelect label="Trade Size" options={tradeSizeOptions} selectedValue={tradeSize} onValueChange={setTradeSize} />
@@ -129,40 +136,42 @@ export default function ConduitFillScreen() {
         </CalculatorCard>
       )}
 
-      {result && (
-        <CalculatorCard>
-          <ResultDisplay
-            label="Conduit Fill"
-            value={`${result.fillPercent}%`}
-            status={result.status === 'pass' ? 'pass' : 'fail'}
-          />
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Total wire area:</Text>
-            <Text style={Typography.body}>{result.totalWireArea} mm²</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Conduit area:</Text>
-            <Text style={Typography.body}>{result.conduitArea} mm²</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Max fill allowed:</Text>
-            <Text style={Typography.body}>{result.maxFillPercent}%</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Remaining capacity:</Text>
-            <Text style={[Typography.body, { color: result.remainingCapacity >= 0 ? Colors.success : Colors.error }]}>
-              {result.remainingCapacity} mm²
+      <SoftLockOverlay isLocked={!isPro}>
+        {result && (
+          <CalculatorCard>
+            <ResultDisplay
+              label="Conduit Fill"
+              value={`${result.fillPercent}%`}
+              status={result.status === 'pass' ? 'pass' : 'fail'}
+            />
+            <View style={styles.detailRow}>
+              <Text style={Typography.bodySecondary}>Total wire area:</Text>
+              <Text style={Typography.body}>{result.totalWireArea} mm²</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={Typography.bodySecondary}>Conduit area:</Text>
+              <Text style={Typography.body}>{result.conduitArea} mm²</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={Typography.bodySecondary}>Max fill allowed:</Text>
+              <Text style={Typography.body}>{result.maxFillPercent}%</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={Typography.bodySecondary}>Remaining capacity:</Text>
+              <Text style={[Typography.body, { color: result.remainingCapacity >= 0 ? Colors.success : Colors.error }]}>
+                {result.remainingCapacity} mm²
+              </Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={Typography.bodySecondary}>Total conductors:</Text>
+              <Text style={Typography.body}>{result.totalConductors}</Text>
+            </View>
+            <Text style={[Typography.cecReference, { marginTop: 12, textAlign: 'center' }]}>
+              {result.cecReference}
             </Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Total conductors:</Text>
-            <Text style={Typography.body}>{result.totalConductors}</Text>
-          </View>
-          <Text style={[Typography.cecReference, { marginTop: 12, textAlign: 'center' }]}>
-            {result.cecReference}
-          </Text>
-        </CalculatorCard>
-      )}
+          </CalculatorCard>
+        )}
+      </SoftLockOverlay>
     </ScrollView>
   );
 }
@@ -170,7 +179,6 @@ export default function ConduitFillScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   content: { padding: 16, paddingBottom: 32 },
-  header: { marginBottom: 16 },
   wireRowHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -1,24 +1,25 @@
-// Box Fill Calculator (PRO) — CEC 2021 Rule 12-3034, Table 22
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet } from 'react-native';
-import { CalculatorCard } from '../../components/CalculatorCard';
-import { ResultDisplay } from '../../components/ResultDisplay';
-import { PickerSelect } from '../../components/PickerSelect';
-import { NumberInput } from '../../components/NumberInput';
-import { ProBadge } from '../../components/ProBadge';
-import { Colors } from '../../constants/colors';
-import { Typography } from '../../constants/typography';
-import { useProStatus } from '../../hooks/useProStatus';
-import { useCalculation } from '../../hooks/useCalculation';
-import { calculateBoxFill, BoxFillInput, BoxFillResult, BoxFillWireEntry } from '../../utils/box-fill';
-import { BoxFillWireSize, boxFillWireSizes } from '../../data/box-fill-data';
+import * as Haptics from 'expo-haptics';
+import { CalculatorCard } from '../../../components/CalculatorCard';
+import { ResultDisplay } from '../../../components/ResultDisplay';
+import { PickerSelect } from '../../../components/PickerSelect';
+import { NumberInput } from '../../../components/NumberInput';
+import { SoftLockOverlay } from '../../../components/SoftLockOverlay';
+import { Colors } from '../../../constants/colors';
+import { Typography } from '../../../constants/typography';
+import { useProStatus } from '../../../hooks/useProStatus';
+import { useCalculation } from '../../../hooks/useCalculation';
+import { useCalculationHistory } from '../../../hooks/useCalculationHistory';
+import { calculateBoxFill, BoxFillInput, BoxFillResult, BoxFillWireEntry } from '../../../utils/box-fill';
+import { BoxFillWireSize, boxFillWireSizes } from '../../../data/box-fill-data';
 
 const wireSizeOptions = boxFillWireSizes.map((w) => ({ label: `#${w} AWG`, value: w }));
 
 export default function BoxFillScreen() {
   const { isPro } = useProStatus();
+  const { addEntry } = useCalculationHistory();
 
-  // Wire entries per size
   const [wireEntries, setWireEntries] = useState<Record<BoxFillWireSize, { insulated: string; passThrough: string }>>({
     '14': { insulated: '', passThrough: '' },
     '12': { insulated: '', passThrough: '' },
@@ -43,10 +44,6 @@ export default function BoxFillScreen() {
     calculateBoxFill,
   );
 
-  if (!isPro) {
-    return <ProBadge isPro={false}><View /></ProBadge>;
-  }
-
   const updateWireEntry = (size: BoxFillWireSize, field: 'insulated' | 'passThrough', value: string) => {
     setWireEntries((prev) => ({
       ...prev,
@@ -55,13 +52,15 @@ export default function BoxFillScreen() {
   };
 
   const handleCalculate = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
     const wires: BoxFillWireEntry[] = boxFillWireSizes.map((size) => ({
       wireSize: size,
       insulatedWires: parseInt(wireEntries[size].insulated) || 0,
       passThroughWires: parseInt(wireEntries[size].passThrough) || 0,
     }));
 
-    calculate({
+    const input: BoxFillInput = {
       wires,
       wireConnectorPairs: parseInt(connectorPairs) || 0,
       largestConnectorWire: largestConnectorWire as BoxFillWireSize,
@@ -74,16 +73,22 @@ export default function BoxFillScreen() {
       hasDeepDevice,
       deepDeviceDepthCm: parseFloat(deepDeviceDepth) || 0,
       boxVolume: parseFloat(boxVolume) || undefined,
-    });
+    };
+
+    const calcResult = calculateBoxFill(input);
+    if (isPro && calcResult && !('error' in calcResult)) {
+      addEntry({
+        calculatorId: 'box-fill',
+        inputSummary: `Box fill calculation`,
+        resultPreview: `${calcResult.totalRequiredVolume} mL`,
+      });
+    }
+
+    calculate(input);
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={Typography.title}>Box Fill Calculator</Text>
-        <Text style={Typography.cecReference}>CEC 2021 Rule 12-3034, Table 22</Text>
-      </View>
-
       <CalculatorCard>
         <Text style={Typography.subtitle}>Conductors</Text>
         {boxFillWireSizes.map((size) => (
@@ -91,20 +96,10 @@ export default function BoxFillScreen() {
             <Text style={[Typography.label, { marginBottom: 4 }]}>#{size} AWG</Text>
             <View style={styles.wireInputRow}>
               <View style={styles.wireInputHalf}>
-                <NumberInput
-                  label="Insulated"
-                  value={wireEntries[size].insulated}
-                  onChangeText={(v) => updateWireEntry(size, 'insulated', v)}
-                  placeholder="0"
-                />
+                <NumberInput label="Insulated" value={wireEntries[size].insulated} onChangeText={(v) => updateWireEntry(size, 'insulated', v)} placeholder="0" />
               </View>
               <View style={styles.wireInputHalf}>
-                <NumberInput
-                  label="Pass-through"
-                  value={wireEntries[size].passThrough}
-                  onChangeText={(v) => updateWireEntry(size, 'passThrough', v)}
-                  placeholder="0"
-                />
+                <NumberInput label="Pass-through" value={wireEntries[size].passThrough} onChangeText={(v) => updateWireEntry(size, 'passThrough', v)} placeholder="0" />
               </View>
             </View>
           </View>
@@ -142,25 +137,14 @@ export default function BoxFillScreen() {
       <CalculatorCard>
         <View style={styles.switchRow}>
           <Text style={Typography.body}>Equipment Grounding Conductors</Text>
-          <Switch
-            value={hasEGC}
-            onValueChange={setHasEGC}
-            trackColor={{ false: Colors.border, true: Colors.primary }}
-            thumbColor={hasEGC ? Colors.accent : Colors.textSecondary}
-          />
+          <Switch value={hasEGC} onValueChange={setHasEGC} trackColor={{ false: Colors.border, true: Colors.primary }} thumbColor={hasEGC ? Colors.accent : Colors.textSecondary} />
         </View>
         {hasEGC && (
           <PickerSelect label="Largest EGC" options={wireSizeOptions} selectedValue={largestEGCWire} onValueChange={setLargestEGCWire} />
         )}
-
         <View style={[styles.switchRow, { marginTop: 12 }]}>
           <Text style={Typography.body}>Deep Device Present</Text>
-          <Switch
-            value={hasDeepDevice}
-            onValueChange={setHasDeepDevice}
-            trackColor={{ false: Colors.border, true: Colors.primary }}
-            thumbColor={hasDeepDevice ? Colors.accent : Colors.textSecondary}
-          />
+          <Switch value={hasDeepDevice} onValueChange={setHasDeepDevice} trackColor={{ false: Colors.border, true: Colors.primary }} thumbColor={hasDeepDevice ? Colors.accent : Colors.textSecondary} />
         </View>
         {hasDeepDevice && (
           <NumberInput label="Device depth" value={deepDeviceDepth} onChangeText={setDeepDeviceDepth} suffix="cm" placeholder="0" />
@@ -181,44 +165,39 @@ export default function BoxFillScreen() {
         </CalculatorCard>
       )}
 
-      {result && (
-        <CalculatorCard>
-          <ResultDisplay
-            label="Total Required Volume"
-            value={`${result.totalRequiredVolume} mL`}
-          />
-
-          {result.breakdown.map((item, index) => (
-            <View key={index} style={styles.detailRow}>
-              <Text style={Typography.bodySecondary}>{item.description} ({item.count}×{item.volumeEach})</Text>
-              <Text style={Typography.body}>{item.totalVolume.toFixed(1)} mL</Text>
-            </View>
-          ))}
-
-          {result.deepDeviceReduction > 0 && (
-            <View style={styles.detailRow}>
-              <Text style={Typography.bodySecondary}>Deep device reduction:</Text>
-              <Text style={[Typography.body, { color: Colors.error }]}>-{result.deepDeviceReduction} mL</Text>
-            </View>
-          )}
-
-          {result.suitableBoxes.length > 0 && (
-            <View style={styles.boxSection}>
-              <Text style={[Typography.subtitle, { marginTop: 12, marginBottom: 8 }]}>Suitable Standard Boxes</Text>
-              {result.suitableBoxes.slice(0, 5).map((box, index) => (
-                <View key={index} style={styles.boxRow}>
-                  <Text style={Typography.bodySecondary}>{box.name}</Text>
-                  <Text style={Typography.body}>{box.volume} mL</Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          <Text style={[Typography.cecReference, { marginTop: 12, textAlign: 'center' }]}>
-            {result.cecReference}
-          </Text>
-        </CalculatorCard>
-      )}
+      <SoftLockOverlay isLocked={!isPro}>
+        {result && (
+          <CalculatorCard>
+            <ResultDisplay label="Total Required Volume" value={`${result.totalRequiredVolume} mL`} />
+            {result.breakdown.map((item, index) => (
+              <View key={index} style={styles.detailRow}>
+                <Text style={Typography.bodySecondary}>{item.description} ({item.count}×{item.volumeEach})</Text>
+                <Text style={Typography.body}>{item.totalVolume.toFixed(1)} mL</Text>
+              </View>
+            ))}
+            {result.deepDeviceReduction > 0 && (
+              <View style={styles.detailRow}>
+                <Text style={Typography.bodySecondary}>Deep device reduction:</Text>
+                <Text style={[Typography.body, { color: Colors.error }]}>-{result.deepDeviceReduction} mL</Text>
+              </View>
+            )}
+            {result.suitableBoxes.length > 0 && (
+              <View>
+                <Text style={[Typography.subtitle, { marginTop: 12, marginBottom: 8 }]}>Suitable Standard Boxes</Text>
+                {result.suitableBoxes.slice(0, 5).map((box, index) => (
+                  <View key={index} style={styles.boxRow}>
+                    <Text style={Typography.bodySecondary}>{box.name}</Text>
+                    <Text style={Typography.body}>{box.volume} mL</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+            <Text style={[Typography.cecReference, { marginTop: 12, textAlign: 'center' }]}>
+              {result.cecReference}
+            </Text>
+          </CalculatorCard>
+        )}
+      </SoftLockOverlay>
     </ScrollView>
   );
 }
@@ -226,7 +205,6 @@ export default function BoxFillScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   content: { padding: 16, paddingBottom: 32 },
-  header: { marginBottom: 16 },
   wireGroup: { marginBottom: 8 },
   wireInputRow: { flexDirection: 'row', gap: 8 },
   wireInputHalf: { flex: 1 },
@@ -252,7 +230,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  boxSection: {},
   boxRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

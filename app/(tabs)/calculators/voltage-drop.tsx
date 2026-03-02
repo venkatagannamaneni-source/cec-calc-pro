@@ -1,17 +1,19 @@
-// Voltage Drop Calculator (PRO) — CEC 2021 Rule 8-102
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { CalculatorCard } from '../../components/CalculatorCard';
-import { ResultDisplay } from '../../components/ResultDisplay';
-import { PickerSelect } from '../../components/PickerSelect';
-import { NumberInput } from '../../components/NumberInput';
-import { ProBadge } from '../../components/ProBadge';
-import { Colors } from '../../constants/colors';
-import { Typography } from '../../constants/typography';
-import { useProStatus } from '../../hooks/useProStatus';
-import { useCalculation } from '../../hooks/useCalculation';
-import { calculateVoltageDrop, VoltageDropInput, VoltageDropResult, SystemType, UnitSystem } from '../../utils/voltage-drop';
-import { ConductorMaterial, WireSize, wireCrossSections } from '../../data/cec-tables';
+import * as Haptics from 'expo-haptics';
+import { CalculatorCard } from '../../../components/CalculatorCard';
+import { ResultDisplay } from '../../../components/ResultDisplay';
+import { PickerSelect } from '../../../components/PickerSelect';
+import { NumberInput } from '../../../components/NumberInput';
+import { SoftLockOverlay } from '../../../components/SoftLockOverlay';
+import { Colors } from '../../../constants/colors';
+import { Typography } from '../../../constants/typography';
+import { useProStatus } from '../../../hooks/useProStatus';
+import { useCalculation } from '../../../hooks/useCalculation';
+import { useCalculationHistory } from '../../../hooks/useCalculationHistory';
+import { useUserPreferences } from '../../../hooks/useUserPreferences';
+import { calculateVoltageDrop, VoltageDropInput, VoltageDropResult, SystemType, UnitSystem } from '../../../utils/voltage-drop';
+import { ConductorMaterial, WireSize, wireCrossSections } from '../../../data/cec-tables';
 
 const systemTypeOptions = [
   { label: 'Single Phase', value: 'single' },
@@ -51,22 +53,20 @@ const parallelOptions = [
 
 export default function VoltageDropScreen() {
   const { isPro } = useProStatus();
+  const { addEntry } = useCalculationHistory();
+  const { preferences } = useUserPreferences();
   const [systemType, setSystemType] = useState<string>('single');
   const [sourceVoltage, setSourceVoltage] = useState('120');
-  const [material, setMaterial] = useState('copper');
+  const [material, setMaterial] = useState<string>(preferences.defaultMaterial);
   const [wireSize, setWireSize] = useState<string>('12');
   const [loadCurrent, setLoadCurrent] = useState('');
   const [distance, setDistance] = useState('');
-  const [unitSystem, setUnitSystem] = useState('imperial');
+  const [unitSystem, setUnitSystem] = useState<string>(preferences.unitSystem);
   const [parallelConductors, setParallelConductors] = useState('1');
 
   const { result, error, calculate } = useCalculation<VoltageDropInput, VoltageDropResult>(
     calculateVoltageDrop,
   );
-
-  if (!isPro) {
-    return <ProBadge isPro={false}><View /></ProBadge>;
-  }
 
   const handleCalculate = () => {
     const current = parseFloat(loadCurrent);
@@ -74,7 +74,9 @@ export default function VoltageDropScreen() {
     const voltage = parseFloat(sourceVoltage);
     if (isNaN(current) || isNaN(dist) || isNaN(voltage)) return;
 
-    calculate({
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    const input: VoltageDropInput = {
       systemType: systemType as SystemType,
       sourceVoltage: voltage,
       material: material as ConductorMaterial,
@@ -83,16 +85,22 @@ export default function VoltageDropScreen() {
       distance: dist,
       unitSystem: unitSystem as UnitSystem,
       parallelConductors: parseInt(parallelConductors),
-    });
+    };
+
+    const calcResult = calculateVoltageDrop(input);
+    if (isPro && calcResult && !('error' in calcResult)) {
+      addEntry({
+        calculatorId: 'voltage-drop',
+        inputSummary: `#${wireSize} ${current}A ${dist}${unitSystem === 'imperial' ? 'ft' : 'm'}`,
+        resultPreview: `${calcResult.voltageDropPercent}%`,
+      });
+    }
+
+    calculate(input);
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={Typography.title}>Voltage Drop Calculator</Text>
-        <Text style={Typography.cecReference}>CEC 2021 Rule 8-102</Text>
-      </View>
-
       <CalculatorCard>
         <PickerSelect label="System Type" options={systemTypeOptions} selectedValue={systemType} onValueChange={setSystemType} />
         <PickerSelect label="Source Voltage" options={voltagePresets} selectedValue={sourceVoltage} onValueChange={setSourceVoltage} />
@@ -114,32 +122,34 @@ export default function VoltageDropScreen() {
         </CalculatorCard>
       )}
 
-      {result && (
-        <CalculatorCard>
-          <ResultDisplay
-            label="Voltage Drop"
-            value={`${result.voltageDrop}V (${result.voltageDropPercent}%)`}
-            status={result.status}
-          />
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Voltage at load:</Text>
-            <Text style={Typography.body}>{result.voltageAtLoad}V</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Status:</Text>
-            <Text style={[Typography.body, {
-              color: result.status === 'pass' ? Colors.success : result.status === 'warning' ? Colors.warning : Colors.error,
-            }]}>{result.statusLabel}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={Typography.bodySecondary}>Max distance for 3%:</Text>
-            <Text style={Typography.body}>{result.maxRecommendedDistance} {result.distanceUnit}</Text>
-          </View>
-          <Text style={[Typography.cecReference, { marginTop: 12, textAlign: 'center' }]}>
-            {result.cecReference}
-          </Text>
-        </CalculatorCard>
-      )}
+      <SoftLockOverlay isLocked={!isPro}>
+        {result && (
+          <CalculatorCard>
+            <ResultDisplay
+              label="Voltage Drop"
+              value={`${result.voltageDrop}V (${result.voltageDropPercent}%)`}
+              status={result.status}
+            />
+            <View style={styles.detailRow}>
+              <Text style={Typography.bodySecondary}>Voltage at load:</Text>
+              <Text style={Typography.body}>{result.voltageAtLoad}V</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={Typography.bodySecondary}>Status:</Text>
+              <Text style={[Typography.body, {
+                color: result.status === 'pass' ? Colors.success : result.status === 'warning' ? Colors.warning : Colors.error,
+              }]}>{result.statusLabel}</Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={Typography.bodySecondary}>Max distance for 3%:</Text>
+              <Text style={Typography.body}>{result.maxRecommendedDistance} {result.distanceUnit}</Text>
+            </View>
+            <Text style={[Typography.cecReference, { marginTop: 12, textAlign: 'center' }]}>
+              {result.cecReference}
+            </Text>
+          </CalculatorCard>
+        )}
+      </SoftLockOverlay>
     </ScrollView>
   );
 }
@@ -147,7 +157,6 @@ export default function VoltageDropScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   content: { padding: 16, paddingBottom: 32 },
-  header: { marginBottom: 16 },
   calculateButton: {
     backgroundColor: Colors.primary,
     borderRadius: 8,

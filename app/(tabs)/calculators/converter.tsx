@@ -1,12 +1,11 @@
-// Imperial/Metric Converter (FREE)
 import React, { useState, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
-import { CalculatorCard } from '../../components/CalculatorCard';
-import { NumberInput } from '../../components/NumberInput';
-import { PickerSelect } from '../../components/PickerSelect';
-import { Colors } from '../../constants/colors';
-import { Typography } from '../../constants/typography';
-import { conversions, ConversionCategory } from '../../utils/conversions';
+import { CalculatorCard } from '../../../components/CalculatorCard';
+import { NumberInput } from '../../../components/NumberInput';
+import { PickerSelect } from '../../../components/PickerSelect';
+import { Colors } from '../../../constants/colors';
+import { Typography } from '../../../constants/typography';
+import { conversions, ConversionCategory } from '../../../utils/conversions';
 
 const categoryOptions: { label: string; value: ConversionCategory }[] = [
   { label: 'Length', value: 'length' },
@@ -24,12 +23,7 @@ export default function ConverterScreen() {
   const [metricValue, setMetricValue] = useState('');
 
   const filteredConversions = conversions.filter((c) => c.category === category);
-
-  const conversionOptions = filteredConversions.map((c, i) => ({
-    label: c.label,
-    value: String(i),
-  }));
-
+  const conversionOptions = filteredConversions.map((c, i) => ({ label: c.label, value: String(i) }));
   const currentConversion = filteredConversions[selectedIndex];
 
   const handleCategoryChange = useCallback((value: string) => {
@@ -50,8 +44,7 @@ export default function ConverterScreen() {
       setImperialValue(text);
       const num = parseFloat(text);
       if (!isNaN(num) && currentConversion) {
-        const result = currentConversion.toMetric(num);
-        setMetricValue(String(Math.round(result * 10000) / 10000));
+        setMetricValue(String(Math.round(currentConversion.toMetric(num) * 10000) / 10000));
       } else {
         setMetricValue('');
       }
@@ -64,8 +57,7 @@ export default function ConverterScreen() {
       setMetricValue(text);
       const num = parseFloat(text);
       if (!isNaN(num) && currentConversion) {
-        const result = currentConversion.toImperial(num);
-        setImperialValue(String(Math.round(result * 10000) / 10000));
+        setImperialValue(String(Math.round(currentConversion.toImperial(num) * 10000) / 10000));
       } else {
         setImperialValue('');
       }
@@ -75,24 +67,10 @@ export default function ConverterScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={Typography.title}>Imperial / Metric Converter</Text>
-      </View>
-
       <CalculatorCard>
-        <PickerSelect
-          label="Category"
-          options={categoryOptions}
-          selectedValue={category}
-          onValueChange={handleCategoryChange}
-        />
+        <PickerSelect label="Category" options={categoryOptions} selectedValue={category} onValueChange={handleCategoryChange} />
         {conversionOptions.length > 1 && (
-          <PickerSelect
-            label="Conversion"
-            options={conversionOptions}
-            selectedValue={String(selectedIndex)}
-            onValueChange={handleConversionChange}
-          />
+          <PickerSelect label="Conversion" options={conversionOptions} selectedValue={String(selectedIndex)} onValueChange={handleConversionChange} />
         )}
       </CalculatorCard>
 
@@ -120,23 +98,8 @@ export default function ConverterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  header: {
-    marginBottom: 16,
-  },
-  arrowContainer: {
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  arrow: {
-    fontSize: 24,
-    color: Colors.accent,
-  },
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { padding: 16, paddingBottom: 32 },
+  arrowContainer: { alignItems: 'center', paddingVertical: 8 },
+  arrow: { fontSize: 24, color: Colors.accent },
 });
