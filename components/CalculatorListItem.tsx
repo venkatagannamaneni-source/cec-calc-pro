@@ -19,7 +19,7 @@ export function CalculatorListItem({ name, description, icon, cecReference, tier
     <TouchableOpacity
       style={[styles.container, isComingSoon && styles.dimmed]}
       onPress={onPress}
-      activeOpacity={isComingSoon ? 1 : 0.7}
+      activeOpacity={isComingSoon ? 1 : 0.6}
       disabled={isComingSoon}
     >
       <View style={styles.iconContainer}>
@@ -41,7 +41,7 @@ export function CalculatorListItem({ name, description, icon, cecReference, tier
           <>
             <View style={[styles.badge, tier === 'pro' ? styles.proBadge : styles.freeBadge]}>
               {tier === 'pro' && (
-                <MaterialCommunityIcons name="lock" size={9} color={Colors.surface} style={{ marginRight: 2 }} />
+                <MaterialCommunityIcons name="lock" size={10} color={Colors.background} style={{ marginRight: 3 }} />
               )}
               <Text style={styles.badgeText}>{tier === 'pro' ? 'PRO' : 'FREE'}</Text>
             </View>
@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 193, 7, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   },
   cecRef: {
     fontSize: 11,
-    color: Colors.primary,
+    color: Colors.success,
     fontStyle: 'italic',
   },
   rightContainer: {
@@ -102,9 +102,9 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
   },
   freeBadge: {
     backgroundColor: Colors.success,
@@ -113,15 +113,15 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.proBadge,
   },
   badgeText: {
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: '700',
-    color: Colors.surface,
+    color: Colors.background,
   },
   comingSoonBadge: {
     backgroundColor: Colors.border,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 8,
+    borderRadius: 10,
   },
   comingSoonText: {
     fontSize: 10,

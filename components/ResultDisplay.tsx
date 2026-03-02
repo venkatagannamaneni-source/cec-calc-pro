@@ -1,4 +1,3 @@
-// Styled result display with CEC rule reference
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../constants/colors';
@@ -18,8 +17,14 @@ export function ResultDisplay({ label, value, cecReference, status }: ResultDisp
       ? Colors.warning
       : Colors.accent;
 
+  const borderColor = status === 'fail'
+    ? Colors.error
+    : status === 'warning'
+      ? Colors.warning
+      : Colors.accent;
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { borderLeftColor: borderColor }]}>
       <Text style={Typography.resultLabel}>{label}</Text>
       <Text style={[Typography.result, { color: valueColor }]}>{value}</Text>
       {cecReference && <Text style={Typography.cecReference}>{cecReference}</Text>}
@@ -30,6 +35,12 @@ export function ResultDisplay({ label, value, cecReference, status }: ResultDisp
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.accent,
+    backgroundColor: 'rgba(255, 193, 7, 0.05)',
+    borderRadius: 8,
+    marginBottom: 8,
   },
 });

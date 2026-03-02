@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CalculatorCard } from '../../../components/CalculatorCard';
 import { NumberInput } from '../../../components/NumberInput';
 import { PickerSelect } from '../../../components/PickerSelect';
@@ -83,7 +84,7 @@ export default function ConverterScreen() {
             suffix={currentConversion.imperialUnit}
           />
           <View style={styles.arrowContainer}>
-            <Text style={styles.arrow}>&#8597;</Text>
+            <MaterialCommunityIcons name="swap-vertical" size={28} color={Colors.accent} />
           </View>
           <NumberInput
             label={`Metric (${currentConversion.metricUnit})`}
@@ -100,6 +101,5 @@ export default function ConverterScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   content: { padding: 16, paddingBottom: 32 },
-  arrowContainer: { alignItems: 'center', paddingVertical: 8 },
-  arrow: { fontSize: 24, color: Colors.accent },
+  arrowContainer: { alignItems: 'center', paddingVertical: 10 },
 });

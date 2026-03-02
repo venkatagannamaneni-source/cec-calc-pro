@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { CalculatorCard } from '../../../components/CalculatorCard';
 import { ResultDisplay } from '../../../components/ResultDisplay';
@@ -153,21 +153,38 @@ const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 32 },
   calculateButton: {
     backgroundColor: Colors.primary,
-    borderRadius: 8,
+    borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
     marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+      },
+    }),
   },
   calculateButtonText: { color: Colors.buttonText, fontSize: 18, fontWeight: '700' },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 6,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
   warningBox: {
-    backgroundColor: '#3E2723',
+    backgroundColor: Colors.warningBackground,
     borderRadius: 8,
     padding: 12,
     marginTop: 12,

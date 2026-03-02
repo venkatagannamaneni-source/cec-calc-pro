@@ -18,13 +18,17 @@ export function SoftLockOverlay({ isLocked, children }: SoftLockOverlayProps) {
 
   return (
     <View style={styles.container}>
-      <MaterialCommunityIcons name="lock-outline" size={48} color={Colors.proBadge} />
+      <View style={styles.iconCircle}>
+        <MaterialCommunityIcons name="lock-outline" size={32} color={Colors.proBadge} />
+      </View>
       <Text style={styles.title}>Unlock Pro to see results</Text>
       <Text style={styles.pricing}>$4.99/mo or $29.99/yr</Text>
       <TouchableOpacity
         style={styles.button}
         onPress={() => router.push('/paywall')}
+        activeOpacity={0.7}
       >
+        <MaterialCommunityIcons name="star" size={18} color={Colors.buttonText} style={{ marginRight: 8 }} />
         <Text style={styles.buttonText}>View Plans</Text>
       </TouchableOpacity>
     </View>
@@ -33,19 +37,29 @@ export function SoftLockOverlay({ isLocked, children }: SoftLockOverlayProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(18, 18, 18, 0.85)',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 32,
     alignItems: 'center',
-    minHeight: 200,
+    minHeight: 220,
     justifyContent: 'center',
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  iconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: Colors.textPrimary,
-    marginTop: 16,
     marginBottom: 8,
   },
   pricing: {
@@ -55,11 +69,13 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: Colors.primary,
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 32,
     paddingVertical: 14,
     minWidth: 200,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   buttonText: {
     color: Colors.buttonText,

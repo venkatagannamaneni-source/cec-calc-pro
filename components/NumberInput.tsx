@@ -1,5 +1,4 @@
-// Numeric input with validation
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
@@ -21,18 +20,22 @@ export function NumberInput({
   placeholder = '0',
   suffix,
 }: NumberInputProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <View style={styles.container}>
       <Text style={Typography.label}>{label}</Text>
       <View style={styles.inputRow}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, isFocused && styles.inputFocused]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor={Colors.textSecondary}
           keyboardType="decimal-pad"
           returnKeyType="done"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
         />
         {suffix && <Text style={styles.suffix}>{suffix}</Text>}
       </View>
@@ -60,6 +63,10 @@ const styles = StyleSheet.create({
     minHeight: 48,
     color: Colors.textPrimary,
     fontSize: 18,
+  },
+  inputFocused: {
+    borderColor: Colors.inputFocusBorder,
+    borderWidth: 2,
   },
   suffix: {
     color: Colors.textSecondary,

@@ -1,6 +1,6 @@
-// Styled dropdown picker
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, FlatList, StyleSheet } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 
@@ -26,15 +26,16 @@ export function PickerSelect({ label, options, selectedValue, onValueChange }: P
       <TouchableOpacity
         style={styles.picker}
         onPress={() => setModalVisible(true)}
+        activeOpacity={0.7}
       >
         <Text style={styles.pickerText}>{selectedLabel}</Text>
-        <Text style={styles.chevron}>&#9660;</Text>
+        <MaterialCommunityIcons name="chevron-down" size={18} color={Colors.textSecondary} />
       </TouchableOpacity>
 
       <Modal
         visible={modalVisible}
         transparent
-        animationType="none"
+        animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
         <TouchableOpacity
@@ -57,6 +58,7 @@ export function PickerSelect({ label, options, selectedValue, onValueChange }: P
                     onValueChange(item.value);
                     setModalVisible(false);
                   }}
+                  activeOpacity={0.6}
                 >
                   <Text
                     style={[
@@ -66,6 +68,9 @@ export function PickerSelect({ label, options, selectedValue, onValueChange }: P
                   >
                     {item.label}
                   </Text>
+                  {item.value === selectedValue && (
+                    <MaterialCommunityIcons name="check" size={18} color={Colors.accent} />
+                  )}
                 </TouchableOpacity>
               )}
             />
@@ -96,43 +101,47 @@ const styles = StyleSheet.create({
   pickerText: {
     color: Colors.textPrimary,
     fontSize: 16,
-  },
-  chevron: {
-    color: Colors.textSecondary,
-    fontSize: 12,
+    flex: 1,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.85)',
     padding: 24,
   },
   modalContent: {
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: 16,
+    padding: 20,
     maxHeight: '70%',
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: Colors.textPrimary,
-    marginBottom: 12,
+    marginBottom: 16,
     textAlign: 'center',
   },
   option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 8,
   },
   selectedOption: {
-    backgroundColor: Colors.primary,
+    backgroundColor: 'rgba(76, 175, 80, 0.15)',
   },
   optionText: {
     fontSize: 16,
     color: Colors.textPrimary,
+    flex: 1,
   },
   selectedOptionText: {
     fontWeight: '600',
+    color: Colors.accent,
   },
 });

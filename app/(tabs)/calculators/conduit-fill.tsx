@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { CalculatorCard } from '../../../components/CalculatorCard';
 import { ResultDisplay } from '../../../components/ResultDisplay';
@@ -122,8 +123,9 @@ export default function ConduitFillScreen() {
         </CalculatorCard>
       ))}
 
-      <TouchableOpacity style={styles.addButton} onPress={addRow}>
-        <Text style={styles.addButtonText}>+ Add Wire</Text>
+      <TouchableOpacity style={styles.addButton} onPress={addRow} activeOpacity={0.7}>
+        <MaterialCommunityIcons name="plus-circle-outline" size={18} color={Colors.primary} style={{ marginRight: 6 }} />
+        <Text style={styles.addButtonText}>Add Wire</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.calculateButton} onPress={handleCalculate}>
@@ -187,27 +189,45 @@ const styles = StyleSheet.create({
   },
   removeText: { color: Colors.error, fontSize: 14 },
   addButton: {
+    flexDirection: 'row',
     borderWidth: 1,
     borderColor: Colors.primary,
-    borderStyle: 'dashed',
-    borderRadius: 8,
+    borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
   },
   addButtonText: { color: Colors.primary, fontSize: 16, fontWeight: '600' },
   calculateButton: {
     backgroundColor: Colors.primary,
-    borderRadius: 8,
+    borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
     marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+      },
+    }),
   },
   calculateButtonText: { color: Colors.buttonText, fontSize: 18, fontWeight: '700' },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 6,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },

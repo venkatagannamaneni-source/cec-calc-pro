@@ -44,7 +44,7 @@ export const Typography = StyleSheet.create({
   cecReference: {
     fontSize: 12,
     fontWeight: '400',
-    color: '#1B5E20',
+    color: '#4CAF50',
     fontStyle: 'italic',
   },
   sectionHeader: {
@@ -53,5 +53,10 @@ export const Typography = StyleSheet.create({
     color: '#B0BEC5',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
+  },
+  button: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
 });

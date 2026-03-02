@@ -1,7 +1,8 @@
 // RevenueCat Paywall Screen
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 
@@ -9,19 +10,6 @@ export default function PaywallScreen() {
   const router = useRouter();
 
   const handlePurchase = (plan: 'monthly' | 'annual') => {
-    // RevenueCat purchase — uncomment when API keys are configured
-    // try {
-    //   const Purchases = (await import('react-native-purchases')).default;
-    //   const offerings = await Purchases.getOfferings();
-    //   const pkg = plan === 'monthly'
-    //     ? offerings.current?.monthly
-    //     : offerings.current?.annual;
-    //   if (pkg) {
-    //     await Purchases.purchasePackage(pkg);
-    //     router.back();
-    //   }
-    // } catch (e) { /* handle error */ }
-
     Alert.alert(
       'Coming Soon',
       'In-app purchases will be available when the app is published to the store.',
@@ -38,68 +26,87 @@ export default function PaywallScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.badge}>PRO</Text>
-        <Text style={Typography.title}>Unlock All Calculators</Text>
-        <Text style={[Typography.bodySecondary, { textAlign: 'center', marginTop: 8 }]}>
-          Get access to Voltage Drop, Conduit Fill, and Box Fill calculators
-        </Text>
-      </View>
-
-      <View style={styles.features}>
-        <FeatureRow icon="✓" text="Wire Sizing Calculator" free />
-        <FeatureRow icon="✓" text="Imperial/Metric Converter" free />
-        <FeatureRow icon="★" text="Voltage Drop Calculator" />
-        <FeatureRow icon="★" text="Conduit Fill Calculator" />
-        <FeatureRow icon="★" text="Box Fill Calculator" />
-        <FeatureRow icon="★" text="Future calculators included" />
-      </View>
-
-      <View style={styles.plans}>
-        <TouchableOpacity
-          style={styles.planCard}
-          onPress={() => handlePurchase('monthly')}
-        >
-          <Text style={styles.planTitle}>Monthly</Text>
-          <Text style={styles.planPrice}>$4.99/mo</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
+          <MaterialCommunityIcons name="close" size={24} color={Colors.textSecondary} />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.planCard, styles.planCardHighlighted]}
-          onPress={() => handlePurchase('annual')}
-        >
-          <Text style={styles.saveBadge}>Save 50%</Text>
-          <Text style={styles.planTitle}>Annual</Text>
-          <Text style={styles.planPrice}>$29.99/yr</Text>
-          <Text style={styles.planSubtext}>$2.50/mo</Text>
+        <View style={styles.header}>
+          <Text style={styles.badge}>PRO</Text>
+          <Text style={Typography.title}>Unlock All Calculators</Text>
+          <Text style={[Typography.bodySecondary, { textAlign: 'center', marginTop: 8 }]}>
+            Get access to Voltage Drop, Conduit Fill, and Box Fill calculators
+          </Text>
+        </View>
+
+        <View style={styles.features}>
+          <FeatureRow icon="check-circle" text="Wire Sizing Calculator" free />
+          <FeatureRow icon="check-circle" text="Imperial/Metric Converter" free />
+          <FeatureRow icon="star" text="Voltage Drop Calculator" />
+          <FeatureRow icon="star" text="Conduit Fill Calculator" />
+          <FeatureRow icon="star" text="Box Fill Calculator" />
+          <FeatureRow icon="star" text="Future calculators included" />
+        </View>
+
+        <View style={styles.plans}>
+          <TouchableOpacity
+            style={styles.planCard}
+            onPress={() => handlePurchase('monthly')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.planTitle}>Monthly</Text>
+            <Text style={styles.planPrice}>$4.99/mo</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.planCard, styles.planCardHighlighted]}
+            onPress={() => handlePurchase('annual')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.saveBadge}>Save 50%</Text>
+            <Text style={styles.planTitle}>Annual</Text>
+            <Text style={styles.planPrice}>$29.99/yr</Text>
+            <Text style={styles.planSubtext}>$2.50/mo</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity onPress={handleRestore} activeOpacity={0.7}>
+          <Text style={styles.restoreText}>Restore Purchases</Text>
         </TouchableOpacity>
       </View>
-
-      <TouchableOpacity onPress={handleRestore}>
-        <Text style={styles.restoreText}>Restore Purchases</Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
 function FeatureRow({ icon, text, free }: { icon: string; text: string; free?: boolean }) {
   return (
     <View style={styles.featureRow}>
-      <Text style={[styles.featureIcon, { color: free ? Colors.success : Colors.proBadge }]}>
-        {icon}
-      </Text>
-      <Text style={Typography.body}>{text}</Text>
+      <MaterialCommunityIcons
+        name={icon as any}
+        size={20}
+        color={free ? Colors.success : Colors.proBadge}
+      />
+      <Text style={[Typography.body, { marginLeft: 12, flex: 1 }]}>{text}</Text>
       {free && <Text style={styles.freeTag}>FREE</Text>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.background,
     padding: 24,
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 8,
+    marginBottom: 8,
   },
   header: {
     alignItems: 'center',
@@ -122,16 +129,9 @@ const styles = StyleSheet.create({
   featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-  },
-  featureIcon: {
-    fontSize: 18,
-    marginRight: 12,
-    width: 24,
-    textAlign: 'center',
+    paddingVertical: 10,
   },
   freeTag: {
-    marginLeft: 'auto',
     fontSize: 11,
     color: Colors.success,
     fontWeight: '600',

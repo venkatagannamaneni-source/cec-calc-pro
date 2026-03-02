@@ -36,14 +36,14 @@ const segStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     backgroundColor: Colors.inputBackground,
-    borderRadius: 8,
-    padding: 3,
+    borderRadius: 10,
+    padding: 4,
   },
   segment: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: 6,
+    borderRadius: 8,
   },
   activeSegment: {
     backgroundColor: Colors.primary,
