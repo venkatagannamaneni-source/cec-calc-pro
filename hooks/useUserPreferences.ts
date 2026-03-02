@@ -38,7 +38,17 @@ export function useUserPreferencesProvider(): UserPreferencesContextValue {
       .then((raw) => {
         if (raw) {
           try {
-            setPreferences({ ...DEFAULT_PREFERENCES, ...JSON.parse(raw) });
+            const parsed = JSON.parse(raw);
+            if (typeof parsed === 'object' && parsed !== null) {
+              const validated: UserPreferences = { ...DEFAULT_PREFERENCES };
+              if (parsed.unitSystem === 'imperial' || parsed.unitSystem === 'metric') {
+                validated.unitSystem = parsed.unitSystem;
+              }
+              if (parsed.defaultMaterial === 'copper' || parsed.defaultMaterial === 'aluminum') {
+                validated.defaultMaterial = parsed.defaultMaterial;
+              }
+              setPreferences(validated);
+            }
           } catch (e) {
             console.warn('Failed to parse user preferences:', e);
           }

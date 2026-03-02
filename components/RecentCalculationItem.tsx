@@ -2,10 +2,11 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
+import type { AppIconName } from '../data/calculator-registry';
 
 interface RecentCalculationItemProps {
   calculatorName: string;
-  calculatorIcon: string;
+  calculatorIcon: AppIconName;
   resultPreview: string;
   timestamp: number;
   onPress: () => void;
@@ -26,7 +27,7 @@ function formatRelativeTime(timestamp: number): string {
 export function RecentCalculationItem({ calculatorName, calculatorIcon, resultPreview, timestamp, onPress }: RecentCalculationItemProps) {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.7}>
-      <MaterialCommunityIcons name={calculatorIcon as any} size={20} color={Colors.accent} />
+      <MaterialCommunityIcons name={calculatorIcon} size={20} color={Colors.accent} />
       <View style={styles.textContainer}>
         <Text style={styles.name} numberOfLines={1}>{calculatorName}</Text>
         <Text style={styles.timestamp}>{formatRelativeTime(timestamp)}</Text>

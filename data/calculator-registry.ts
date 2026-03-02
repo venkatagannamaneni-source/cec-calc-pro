@@ -1,9 +1,14 @@
+import type { ComponentProps } from 'react';
+import type { MaterialCommunityIcons } from '@expo/vector-icons';
+
+export type AppIconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
+
 export interface CalculatorDefinition {
   id: string;
   name: string;
   shortName: string;
   description: string;
-  icon: string;
+  icon: AppIconName;
   cecReference: string;
   tier: 'free' | 'pro';
   category: CalculatorCategory;
@@ -18,7 +23,7 @@ export interface ComingSoonDefinition {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  icon: AppIconName;
 }
 
 export const CALCULATORS: CalculatorDefinition[] = [

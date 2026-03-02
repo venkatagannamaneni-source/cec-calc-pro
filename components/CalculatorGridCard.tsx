@@ -2,11 +2,12 @@ import React from 'react';
 import { Text, TouchableOpacity, StyleSheet, View, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
+import type { AppIconName } from '../data/calculator-registry';
 
 interface CalculatorGridCardProps {
   name: string;
   description: string;
-  icon: string;
+  icon: AppIconName;
   tier: 'free' | 'pro';
   onPress: () => void;
 }
@@ -16,7 +17,7 @@ export function CalculatorGridCard({ name, description, icon, tier, onPress }: C
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.6}>
       <View style={styles.topRow}>
         <View style={styles.iconContainer}>
-          <MaterialCommunityIcons name={icon as any} size={24} color={Colors.accent} />
+          <MaterialCommunityIcons name={icon} size={24} color={Colors.accent} />
         </View>
         <View style={[styles.badge, tier === 'pro' ? styles.proBadge : styles.freeBadge]}>
           {tier === 'pro' && (

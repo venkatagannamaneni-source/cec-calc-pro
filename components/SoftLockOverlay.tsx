@@ -1,16 +1,25 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
 
 interface SoftLockOverlayProps {
   isLocked: boolean;
+  isLoading?: boolean;
   children: React.ReactNode;
 }
 
-export function SoftLockOverlay({ isLocked, children }: SoftLockOverlayProps) {
+export function SoftLockOverlay({ isLocked, isLoading, children }: SoftLockOverlayProps) {
   const router = useRouter();
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
 
   if (!isLocked) {
     return <>{children}</>;
@@ -81,5 +90,10 @@ const styles = StyleSheet.create({
     color: Colors.buttonText,
     fontSize: 16,
     fontWeight: '600',
+  },
+  loadingContainer: {
+    minHeight: 220,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

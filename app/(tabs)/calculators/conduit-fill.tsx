@@ -41,7 +41,7 @@ interface WireRow {
 }
 
 export default function ConduitFillScreen() {
-  const { isPro } = useProStatus();
+  const { isPro, isLoading } = useProStatus();
   const { addEntry } = useCalculationHistory();
   const [conduitType, setConduitType] = useState<string>('EMT');
   const [tradeSize, setTradeSize] = useState<string>('1/2"');
@@ -138,7 +138,7 @@ export default function ConduitFillScreen() {
         </CalculatorCard>
       )}
 
-      <SoftLockOverlay isLocked={!isPro}>
+      <SoftLockOverlay isLocked={!isPro} isLoading={isLoading}>
         {result && (
           <CalculatorCard>
             <ResultDisplay

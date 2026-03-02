@@ -17,7 +17,7 @@ import { BoxFillWireSize, boxFillWireSizes } from '../../../data/box-fill-data';
 const wireSizeOptions = boxFillWireSizes.map((w) => ({ label: `#${w} AWG`, value: w }));
 
 export default function BoxFillScreen() {
-  const { isPro } = useProStatus();
+  const { isPro, isLoading } = useProStatus();
   const { addEntry } = useCalculationHistory();
 
   const [wireEntries, setWireEntries] = useState<Record<BoxFillWireSize, { insulated: string; passThrough: string }>>({
@@ -165,7 +165,7 @@ export default function BoxFillScreen() {
         </CalculatorCard>
       )}
 
-      <SoftLockOverlay isLocked={!isPro}>
+      <SoftLockOverlay isLocked={!isPro} isLoading={isLoading}>
         {result && (
           <CalculatorCard>
             <ResultDisplay label="Total Required Volume" value={`${result.totalRequiredVolume} mL`} />

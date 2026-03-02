@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, SectionList, StyleSheet, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { CalculatorListItem } from '../../../components/CalculatorListItem';
 import { SectionHeader } from '../../../components/SectionHeader';
 import { Colors } from '../../../constants/colors';
@@ -45,7 +45,7 @@ export default function CalculatorsDirectoryScreen() {
   const router = useRouter();
 
   const navigateToCalculator = (id: string) => {
-    router.push(`/calculators/${id}` as any);
+    router.push(`/calculators/${id}` as Href);
   };
 
   const handleComingSoon = () => {

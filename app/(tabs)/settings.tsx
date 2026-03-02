@@ -8,6 +8,7 @@ import { Typography } from '../../constants/typography';
 import { useProStatus } from '../../hooks/useProStatus';
 import { useCalculationHistory } from '../../hooks/useCalculationHistory';
 import { useUserPreferences } from '../../hooks/useUserPreferences';
+import type { AppIconName } from '../../data/calculator-registry';
 
 function SegmentedControl({ options, selectedValue, onValueChange }: {
   options: { label: string; value: string }[];
@@ -60,14 +61,14 @@ const segStyles = StyleSheet.create({
 });
 
 function SettingsRow({ icon, label, value, onPress }: {
-  icon: string;
+  icon: AppIconName;
   label: string;
   value?: string;
   onPress?: () => void;
 }) {
   return (
     <TouchableOpacity style={styles.settingsRow} onPress={onPress} disabled={!onPress} activeOpacity={onPress ? 0.7 : 1}>
-      <MaterialCommunityIcons name={icon as any} size={20} color={Colors.textSecondary} />
+      <MaterialCommunityIcons name={icon} size={20} color={Colors.textSecondary} />
       <Text style={styles.settingsRowLabel}>{label}</Text>
       {value && <Text style={styles.settingsRowValue}>{value}</Text>}
       {onPress && <MaterialCommunityIcons name="chevron-right" size={18} color={Colors.textSecondary} />}

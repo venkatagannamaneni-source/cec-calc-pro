@@ -41,7 +41,20 @@ export function useCalculationHistoryProvider(): CalculationHistoryContextValue 
       .then((raw) => {
         if (raw) {
           try {
-            setHistory(JSON.parse(raw));
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              const valid = parsed.filter(
+                (e: unknown): e is CalculationHistoryEntry =>
+                  typeof e === 'object' &&
+                  e !== null &&
+                  typeof (e as CalculationHistoryEntry).id === 'string' &&
+                  typeof (e as CalculationHistoryEntry).calculatorId === 'string' &&
+                  typeof (e as CalculationHistoryEntry).timestamp === 'number' &&
+                  typeof (e as CalculationHistoryEntry).inputSummary === 'string' &&
+                  typeof (e as CalculationHistoryEntry).resultPreview === 'string',
+              );
+              setHistory(valid);
+            }
           } catch (e) {
             console.warn('Failed to parse calculation history:', e);
           }

@@ -52,7 +52,7 @@ const parallelOptions = [
 ];
 
 export default function VoltageDropScreen() {
-  const { isPro } = useProStatus();
+  const { isPro, isLoading } = useProStatus();
   const { addEntry } = useCalculationHistory();
   const { preferences } = useUserPreferences();
   const [systemType, setSystemType] = useState<string>('single');
@@ -122,7 +122,7 @@ export default function VoltageDropScreen() {
         </CalculatorCard>
       )}
 
-      <SoftLockOverlay isLocked={!isPro}>
+      <SoftLockOverlay isLocked={!isPro} isLoading={isLoading}>
         {result && (
           <CalculatorCard>
             <ResultDisplay

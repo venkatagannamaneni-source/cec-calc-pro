@@ -2,11 +2,12 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
+import type { AppIconName } from '../data/calculator-registry';
 
 interface CalculatorListItemProps {
   name: string;
   description: string;
-  icon: string;
+  icon: AppIconName;
   cecReference: string;
   tier: 'free' | 'pro' | 'coming-soon';
   onPress: () => void;
@@ -23,7 +24,7 @@ export function CalculatorListItem({ name, description, icon, cecReference, tier
       disabled={isComingSoon}
     >
       <View style={styles.iconContainer}>
-        <MaterialCommunityIcons name={icon as any} size={24} color={Colors.accent} />
+        <MaterialCommunityIcons name={icon} size={24} color={Colors.accent} />
       </View>
       <View style={styles.textContainer}>
         <Text style={styles.name} numberOfLines={1}>{name}</Text>

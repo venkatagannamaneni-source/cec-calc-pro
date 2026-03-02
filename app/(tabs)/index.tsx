@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CalculatorGridCard } from '../../components/CalculatorGridCard';
 import { RecentCalculationItem } from '../../components/RecentCalculationItem';
@@ -20,7 +20,7 @@ export default function HomeScreen() {
   const recentCalcs = getRecent(3);
 
   const navigateToCalculator = (id: string) => {
-    router.push(`/calculators/${id}` as any);
+    router.push(`/calculators/${id}` as Href);
   };
 
   return (

@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
+import type { AppIconName } from '../data/calculator-registry';
 
 export default function PaywallScreen() {
   const router = useRouter();
@@ -79,11 +80,11 @@ export default function PaywallScreen() {
   );
 }
 
-function FeatureRow({ icon, text, free }: { icon: string; text: string; free?: boolean }) {
+function FeatureRow({ icon, text, free }: { icon: AppIconName; text: string; free?: boolean }) {
   return (
     <View style={styles.featureRow}>
       <MaterialCommunityIcons
-        name={icon as any}
+        name={icon}
         size={20}
         color={free ? Colors.success : Colors.proBadge}
       />
